@@ -63,11 +63,33 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "FeatureInputStream.h"
 #include "AudioInputStream.h"
 #include "AudioFrame.h"
+
+/*
 #define _sig_c_
 extern "C"
 {
 #include "spro.h"
 }
+*/
+/**
+	\attention this methods are included in ALIZE in order to include parameterization, but not done at this time 
+	just include in this file (FeatureComputer.cpp) to remove sig.c and spro.h to allow linking with SPRO
+*/
+ typedef float lsample_t;         /* a sample                                   */
+typedef float lspf_t;            /* feature type                               */
+
+typedef struct {
+  unsigned long n;              /* number of samples                          */
+  lsample_t *s;                  /* array of samples                           */
+} lspsig_t;                      /* signal waveform                            */
+
+typedef struct {
+  unsigned long m;              /* maximum buffer size (num. samples)         */
+  unsigned long n;              /* actual buffer size (num. samples)          */
+  void *s;
+} lsigbuf_t;                     /* signal I/O buffer                          */
+
+
 
 namespace alize
 {
@@ -151,12 +173,12 @@ namespace alize
     unsigned long     _featureIndex;
     AudioFrame        _audioFrame;
     AudioInputStream* _pAudioInputStream;
-    sigbuf_t*         _pBuf;
-    sample_t*         _buf;
+    lsigbuf_t*         _pBuf;
+    lsample_t*         _buf;
     float*            _w;
-    spsig_t*          _s;
-    spf_t*            _e;
-    spf_t*            _c;
+    lspsig_t*          _s;
+    lspf_t*            _e;
+    lspf_t*            _c;
     float*            _r;
     unsigned short*   _idx;
     unsigned long     _l;
@@ -208,20 +230,20 @@ namespace alize
                 $Revision$
     */    
     unsigned long   sig_stream_read();
-    int             get_next_sig_frame(int ch, int l, int d, float a, sample_t *s);
+    int             get_next_sig_frame(int ch, int l, int d, float a, lsample_t *s);
     int             fft_init(unsigned long npts);
-    int             fft(spsig_t *s, float *m, float *ph);
+    int             fft(lspsig_t *s, float *m, float *ph);
     void            _fft(float *x, int m);
     void            _brx(float *x, int m);
     int             dct_init(unsigned short nin, unsigned short nout);
-    int             dct(spf_t *ip, spf_t *op);
+    int             dct(lspf_t *ip, lspf_t *op);
     unsigned short* set_alpha_idx(unsigned short n, float a, float fmin, float fmax);
     unsigned short* set_mel_idx(unsigned short n, float fmin, float fmax, float srate);
     float           theta(float o, float a);
     float           theta_inv(float oop, float a);
     float           mel(float f);
     float           mel_inv(float f);
-    int             log_filter_bank(spsig_t *x, unsigned short nfilt, unsigned short *idx, spf_t *e);
+    int             log_filter_bank(lspsig_t *x, unsigned short nfilt, unsigned short *idx, lspf_t *e);
   };
 
 } // end namespace alize
