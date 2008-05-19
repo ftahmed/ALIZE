@@ -28,6 +28,9 @@ A: Use Visual C++ 2005 with the project file and compile
 Q: How to generate the ALIZE library under Linux 
 A: In a shell, ./autogen.sh, libalize.a can be found in ./src/ and ./lib/ folder
 
+Q: I have some problems to compile ALIZE
+A: Please read this technote : http://mistral.univ-avignon.fr/mistral_dev/pdf/mistral_technote.004.howToCompileMistral.pdf
+
 Q: How to I link ALIZE with my projects
 A: See the example in the ./exemple directory. Just include the header file alize.h at the begining of your source code and link statically libalize.a during your project compilation
 
