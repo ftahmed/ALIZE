@@ -58,6 +58,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #ifdef WIN32
 #pragma warning( disable : 4512 4127 )
+// This is suggested according to message This function or variable may be unsafe
+#define _CRT_SECURE_NO_DEPRECATE
 #endif
 
 #include <cstdlib> // for exit()
