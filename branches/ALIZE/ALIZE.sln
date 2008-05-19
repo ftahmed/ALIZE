@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual C++ Express 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ALIZE", "ALIZE\ALIZE.vcproj", "{1D915BAF-031F-4A80-98FA-F3C1BB4CCB1A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D915BAF-031F-4A80-98FA-F3C1BB4CCB1A}.Debug|Win32.ActiveCfg = Release|Win32
+		{1D915BAF-031F-4A80-98FA-F3C1BB4CCB1A}.Debug|Win32.Build.0 = Release|Win32
+		{1D915BAF-031F-4A80-98FA-F3C1BB4CCB1A}.Release|Win32.ActiveCfg = Release|Win32
+		{1D915BAF-031F-4A80-98FA-F3C1BB4CCB1A}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -4,10 +4,10 @@
 #											  
 # Readme File of ALIZE package		
 #							
-# Last edit: 8 February 2008
+# Last edit: 16 May 2008
 # Last editor : E.charton/eric.charton@univ-avignon.fr 
 #						
-# Version : 1.32 - 		
+# Version : 1.33 - 		
 ##########################################################
 
 This package is part of the Mistral Project. Please visit http://mistral.univ-avignon.fr 
@@ -22,7 +22,10 @@ http://mistral.univ-avignon.fr/mistral_dev/pdf/mistral_technote.004.howToCompile
 FAQ
 ----
 
-Q: How to generate the ALIZE library
+Q: How to generate the ALIZE library under Win32
+A: Use Visual C++ 2005 with the project file and compile
+
+Q: How to generate the ALIZE library under Linux 
 A: In a shell, ./autogen.sh, libalize.a can be found in ./src/ and ./lib/ folder
 
 Q: How to I link ALIZE with my projects
