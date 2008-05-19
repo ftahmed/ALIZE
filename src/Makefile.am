@@ -80,6 +80,5 @@ ViterbiAccum.cpp\
 XLine.cpp\
 XList.cpp\
 XListFileReader.cpp\
-XmlParser.cpp\
-misc.c\
-sig.c
+XmlParser.cpp
+

@@ -27,7 +27,7 @@ endif
 SRC_DIR=./src
 HEADERS=$(wildcard $(SRC_DIR)/*.h)
 SRC= $(wildcard $(SRC_DIR)/*.cpp)
-OBJ= $(SRC:$(SRC_DIR)/%.cpp=$(SRC_DIR)/%.o) $(SRC_DIR)/misc.o $(SRC_DIR)/sig.o
+#OBJ= $(SRC:$(SRC_DIR)/%.cpp=$(SRC_DIR)/%.o) $(SRC_DIR)/misc.o $(SRC_DIR)/sig.o
 
 ###############################
 # LIBS & INC DIR
@@ -70,11 +70,12 @@ clean:
 ################################
 # Building Spro
 ################################
-spro: $(SRC_DIR)/sig.o $(SRC_DIR)/misc.o
-$(SRC_DIR)/sig.o: 
-	@echo "----- Compiling $^ -------------";
-	$(C) $(INCLDIR) $(CFLAGS) -o $@ -c $(SRC_DIR)/sig.c
-$(SRC_DIR)/misc.o: 
-	@echo "----- Compiling $^ -------------";
-	$(C) $(INCLDIR) $(CFLAGS) -o $@ -c $(SRC_DIR)/misc.c
-.PRECIOUS: $(LIB_ALIZE)
+#removed in 1.32 see what's new
+#spro: $(SRC_DIR)/sig.o $(SRC_DIR)/misc.o
+#$(SRC_DIR)/sig.o: 
+#	@echo "----- Compiling $^ -------------";
+#	$(C) $(INCLDIR) $(CFLAGS) -o $@ -c $(SRC_DIR)/sig.c
+#$(SRC_DIR)/misc.o: 
+#	@echo "----- Compiling $^ -------------";
+#	$(C) $(INCLDIR) $(CFLAGS) -o $@ -c $(SRC_DIR)/misc.c
+#.PRECIOUS: $(LIB_ALIZE)
