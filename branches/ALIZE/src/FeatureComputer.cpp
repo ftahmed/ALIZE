@@ -343,7 +343,7 @@ void R::init(AudioInputStream& a, const Config& c)
   o = "featureComputerPreEmphasis";
   if (c.existsParam(o))
   {
-    float x = c.getFloatParam(o);
+    float x = (float)c.getFloatParam(o);
     if (x < 0.0 || x >= 1.0)
       throw Exception("Invalid pre-emphasis coefficient "
         + String::valueOf(x) + " (not in [0,1[)", __FILE__, __LINE__);
@@ -355,7 +355,7 @@ void R::init(AudioInputStream& a, const Config& c)
   o = "featureComputerShift";
   if (c.existsParam(o))
   {
-    float x = c.getFloatParam(o);
+    float x = (float)c.getFloatParam(o);
     if (x <= 0.0)
       throw Exception("Invalid shift "
           + String::valueOf(x) + ": (must be > 0.0 ms)", __FILE__, __LINE__);
@@ -366,7 +366,7 @@ void R::init(AudioInputStream& a, const Config& c)
 
   o = "featureComputerLength";
   if (c.existsParam(o))
-    _fm_l = c.getFloatParam(o);
+    _fm_l = (float)c.getFloatParam(o);
 
   // weighting window
 
@@ -398,7 +398,7 @@ void R::init(AudioInputStream& a, const Config& c)
       throw Exception("invalid number of filters " + String::valueOf(x)
         + " (not in ["+String::valueOf(SPRO_MIN_FILTERS)+","+String::valueOf(SPRO_MAX_FILTERS)+"])",
         __FILE__, __LINE__);
-    _nfilters = x;
+    _nfilters = (unsigned short)x;
   }
 
   // spectral resolution coefficient
@@ -406,7 +406,7 @@ void R::init(AudioInputStream& a, const Config& c)
   o = "featureComputerAlpha";
   if (c.existsParam(o))
   {
-    float x = c.getFloatParam(o);
+    float x = (float)c.getFloatParam(o);
     if (x <= -1 || x >= 1)
       throw Exception("Invalid spectral resolution coefficient "
         + String::valueOf(x) + " (not in ]-1,1[)", __FILE__, __LINE__);
@@ -422,13 +422,13 @@ void R::init(AudioInputStream& a, const Config& c)
 
   o = "featureComputerFreqMin";
   if (c.existsParam(o))
-    _f_min = c.getFloatParam(o);
+    _f_min = (float)c.getFloatParam(o);
 
   // higher frequency bound
 
   o = "featureComputerFreqMax";
   if (c.existsParam(o))
-    _f_max = c.getFloatParam(o);
+    _f_max = (float)c.getFloatParam(o);
 
   // FFT length
 
@@ -440,7 +440,7 @@ void R::init(AudioInputStream& a, const Config& c)
       throw Exception("invalid FFT length " + String::valueOf(x)
         + " (not in ["+String::valueOf(SPRO_MIN_FFT_SIZE)+","+String::valueOf(SPRO_MAX_FFT_SIZE)+"])",
         __FILE__, __LINE__);
-    _nfilters = x;
+    _nfilters = (unsigned short)x;
   }
 
   // liftering value
@@ -1211,7 +1211,7 @@ unsigned short* R::set_alpha_idx(unsigned short n, float a, float fmin, float fm
   omax = (fmax < 0.5) ? theta(2.0 * XX_PI * fmax, a) : XX_PI;
 
   d = (omax - omin) / (float)(n + 1);
-  z = (float)((_fftn / 2) - 1) / XX_PI;
+  z = (float)(((_fftn / 2) - 1) / XX_PI);
   o = omin;
 
   i = 0;
@@ -1243,7 +1243,7 @@ float R::theta(float o, float a)
     return(o);
 
   if (o == XX_PI)
-    return(XX_PI);
+    return((float)XX_PI);
 
   a2 = a * a;
   v = atan(((1.0 - a2) * sin(o)) / ((1.0 + a2) * cos(o) - 2.0 * a));
@@ -1287,16 +1287,16 @@ float R::theta_inv(float oop,float a)
     return(0.0);
 
   if(oop >= XX_PI)
-    return(XX_PI);
+    return((float)XX_PI);
 
   oinf = 0.0;
-  osup = XX_PI;
+  osup = (float)XX_PI;
   a2 = a * a;
   b = 2.0 * a;
   do {
-    o = oinf + (osup - oinf) / 2.0;
+    o = (float)(oinf + (osup - oinf) / 2.0);
     v = atan(((1.0 - a2) * sin(o)) / ((1.0 + a2) * cos(o) - b));
-    op = (v < 0) ? (float)v + XX_PI : (float)v;
+    op = (float)((v < 0) ? (float)v + XX_PI : (float)v);
     if(op > oop)
       osup = o;
     else
@@ -1337,7 +1337,7 @@ unsigned short* R::set_mel_idx(unsigned short n, float fmin, float fmax, float s
   min = mel(fmin * srate); /* bounds and df in transform domain */
   max = mel(fmax * srate); 
   d = (max - min) / (float)(n + 1);
-  z = (float)(_fftn / 2 - 1) * 2.0 / srate;
+  z = (float)((_fftn / 2 - 1) * 2.0 / srate);
   f = min;
 
   for (i = 1; i <= n; i++) {
@@ -1353,7 +1353,7 @@ unsigned short* R::set_mel_idx(unsigned short n, float fmin, float fmax, float s
 /* ---------------------------- */
 float R::mel(float f)
 {
-  return(2595.0 * log10(1 + f / 700.0));
+  return( (float)(2595.0 * log10(1 + f / 700.0)));
 }
 //-------------------------------------------------------------------------
 /* -------------------------------- */

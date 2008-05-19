@@ -58,6 +58,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #ifdef WIN32
 #pragma warning( disable : 4127 4505 4702 4291)
+// This is suggested according to message This function or variable may be unsafe
+#define _CRT_SECURE_NO_DEPRECATE
 #endif
 
 #include <new>
@@ -271,7 +273,7 @@ unsigned long R::readSomeFloats(FloatVector& v)
   if (isClosed())
     open(); // can throw Exception if file name = ""
   float* array = v.getArray();
-  unsigned long n = ::fread(array, 4, v.size(), _pFileStruct);
+  unsigned long n = (unsigned long)(::fread(array, 4, v.size(), _pFileStruct));
   if (_swap)
   {
     char* p = (char*)array;
