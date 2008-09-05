@@ -62,20 +62,82 @@ using namespace alize;
 
 //-------------------------------------------------------------------------
 Exception::Exception(const String& msg, const String& sourceFile, int line)
-:Object(), msg(msg), sourceFile(sourceFile), line(line) {}
+:Object(), msg(msg), sourceFile(sourceFile), line(line), trace(stackTrace()) {}
 //-------------------------------------------------------------------------
 Exception::Exception(const Exception& e)
-:Object(),msg(e.msg),sourceFile(e.sourceFile),line(e.line) {}
+:Object(),msg(e.msg),sourceFile(e.sourceFile),line(e.line),trace(e.trace) {}
 //-------------------------------------------------------------------------
 String Exception::toString() const
 {
-  return Object::toString()
+  return trace  //stack trace is output in front, since self-made message will be extended by other FooException classes
+    + Object::toString()
     + "\n  message   = \"" + msg + "\""
     + "\n  source file = " + sourceFile
     + "\n  line number = " + String::valueOf(line);
 }
 //-------------------------------------------------------------------------
 String Exception::getClassName() const { return "Exception"; }
+//-------------------------------------------------------------------------
+/*!
+ * /brief  stackTrace - tries to get the stack trace of current point.
+ *  If (libALIZE and) MISTRAL bits were compiled with -g or -ggdb option,
+ *  prints srcFile+line and method parameters. Otherwise, just method names.
+ *
+ * ATTENTION:
+ *  works only on GNU/Linux systems, because:
+ *  - it calls gdb
+ *  - it accesses the symlink /proc/self/exe to fetch the name of current executable
+ * EXAMPLES:
+ *  standalone gdb call for testing:
+ *    gdb -ex run --batch --args ../EigenChannel/EigenChannel --config /users/verdet/lid/fa1-30sSeg-CMSSDCCMS/cfg/EigenChannel.cfg --ndxFilename foo --inputWorldFilename foo --channelMatrix foo
+ *  gdb call attaching to running process:
+ *    gdb -ex run --batch ../EigenChannel/EigenChannel 1234
+ *
+ * CREDITS:
+ * Idea to call gdb from within exception/crash handler to get a correct stack trace
+ *  comes from:
+ *   Mark Kretschmann markey, prominent Amarok hacker / C++ guru
+ * 20080904120004
+ *  Florian Verdet _goto. <florian.verdet@univ-avignon.fr>,<hacking@verdet.ch>
+ *
+ * TODO: make gdb call etc. parametrable through a config option (i.e. debugLevel) for:
+ *  - do a 'bt full' to show also local variables
+ *  - launch interactive gdb to be able to analyze manually (without '-batch')
+ */
+String Exception::stackTrace() const
+{
+	//fprintf(stdout, "DBG: Exception::stackTrace() called!\n") ;
+	String data ;
+
+#ifdef WIN32
+	data = " *** Exception::stackTrace() uses gdb and GNU/Linux' /proc fs which are unavailable on Windows - won't trace the stack.\n" ;
+#else  ///< assuming GNU/Linux system - ATTENTION: doesn't work on Mac (no procfs)
+	// fetch required bits (workaround the fact we don't have access to any info (argv[0] i.e.) )
+	char mistralProg[2048];
+	size_t length = readlink("/proc/self/exe", mistralProg, 2048);
+	mistralProg[length] = '\0';
+	pid_t myPid = getpid() ;
+
+	// TODO: escape mistralProg to avoid nasty things
+	// with 'bt full', prints also local variables (not very useful if having only complex objects...)
+	//String cmd = "gdb -batch -ex='bt full' " + String(mistralProg) +" "+ String::valueOf(myPid) ;
+	String cmd = "gdb -batch -ex=bt " + String(mistralProg) +" "+ String::valueOf(myPid) ;
+	data += "stack trace by GDB [" + cmd +"]\n" ;
+
+	// run cmd and read its output
+	size_t MAX_BUFFER = 255 ;
+	FILE *stream;
+	char buffer[MAX_BUFFER];
+
+	stream = popen( cmd.c_str(), "r");
+	while( fgets(buffer, MAX_BUFFER, stream) != NULL ) {
+	   data += buffer ;
+	}
+	pclose(stream);
+#endif
+
+	return data;
+}
 //-------------------------------------------------------------------------
 Exception::~Exception() {}
 //-------------------------------------------------------------------------
