@@ -73,6 +73,7 @@ namespace alize
   {
     public :
       /// Create an Exception object
+      ///   Also tries to fetch a stack trace and stores it in the trace field.
       /// @param msg detailed message
       /// @param sourceFile name of the source file that thrown the
       ///    exception
@@ -84,9 +85,26 @@ namespace alize
       virtual ~Exception();
       virtual String toString() const;
       virtual String getClassName() const;
+
+      /*! \brief  Tries to get the stack trace of current point
+       *
+       *  \note  ATTENTION:
+       *    works only on GNU/Linux systems, because:
+       *    - it calls gdb
+       *    - it accesses the symlink /proc/self/exe to fetch the name of current executable
+       *
+       * \date  20080904120004
+       * \author  Florian Verdet _goto. <florian.verdet@univ-avignon.fr>,<hacking@verdet.ch>
+       *   CREDITS:
+       *    Idea to call gdb from within exception/crash handler to get a correct stack trace comes from:
+       *     Mark Kretschmann markey, prominent Amarok hacker / C++ guru
+       */
+      virtual String stackTrace() const ;
+
       const String msg; // message of the exception
       const String sourceFile; // name of the source file
       const int  line; // line number of the source file
+      const String trace ;  ///< gets filled by stackTrace upon throwing time to fetch current stack trace
     private:
       bool operator==(const Exception&) const;   /*!Not implemented*/
       bool operator!=(const Exception& e) const;   /*!Not implemented*/
