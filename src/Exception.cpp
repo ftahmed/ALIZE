@@ -62,7 +62,14 @@ using namespace alize;
 
 //-------------------------------------------------------------------------
 Exception::Exception(const String& msg, const String& sourceFile, int line)
-:Object(), msg(msg), sourceFile(sourceFile), line(line), trace(stackTrace()) {}
+:Object(), msg(msg), sourceFile(sourceFile), line(line), trace(stackTrace(getClassName())) {}
+//-------------------------------------------------------------------------
+/* NOTE: we need the name of the derived class in the superclass. But execution sequence is:
+ * superclass-initializationlist, superclass-constructor, class-initializationlist, class-constructor.
+ * The only way is to pass the className of the current class in the call to the superclass-constructor.
+ */
+Exception::Exception(const String& msg, const String& sourceFile, int line, String callerName)
+:Object(), msg(msg), sourceFile(sourceFile), line(line), trace(stackTrace(callerName)) {}
 //-------------------------------------------------------------------------
 Exception::Exception(const Exception& e)
 :Object(),msg(e.msg),sourceFile(e.sourceFile),line(e.line),trace(e.trace) {}
@@ -104,9 +111,23 @@ String Exception::getClassName() const { return "Exception"; }
  *  - do a 'bt full' to show also local variables
  *  - launch interactive gdb to be able to analyze manually (without '-batch')
  */
-String Exception::stackTrace() const
+String Exception::stackTrace( const String callerName) const
 {
-	//fprintf(stdout, "DBG: Exception::stackTrace() called!\n") ;
+	//fprintf(stdout, "DBG: Exception::stackTrace() called with caller[%s]!\n", callerName.c_str()) ;
+
+	/*! EOFException is usually catched non-failing and occurs for every file read.
+	 * Thus we don't build a stack trace (otherwise, we loose far too much time. */
+	if( callerName == "EOFException") {
+		return "" ;
+	}
+
+	/*! FileNotFoundException may be catched non-failing in EnergyDetectorMain.cpp(1*),
+	 * SegTools.cpp(each lblFile, currently unused), LabelFusion.cpp(1*).
+	 * Since there's no so many (useless) cases, we build a stack trace anyway (no special handling) */
+	/*if( callerName == "FileNotFoundException") {
+		//return "" ;
+	}*/
+
 	String data ;
 
 #ifdef WIN32
@@ -135,7 +156,7 @@ String Exception::stackTrace() const
 	}
 	pclose(stream);
 #endif
-
+	//fprintf( stdout, "DBG: trace[%s]", data.c_str());
 	return data;
 }
 //-------------------------------------------------------------------------
@@ -147,11 +168,11 @@ Exception::~Exception() {}
 //-------------------------------------------------------------------------
 IndexOutOfBoundsException::IndexOutOfBoundsException(const String& msg,
         const String& sourceFile, int line, long index, long limit)
-:Exception(msg, sourceFile, line), index(index), limit(limit) {}
+:Exception(msg, sourceFile, line, getClassName()), index(index), limit(limit) {}
 //-------------------------------------------------------------------------
 IndexOutOfBoundsException::IndexOutOfBoundsException(
                 const IndexOutOfBoundsException& e)
-:Exception(e.msg, e.sourceFile, e.line),
+:Exception(e.msg, e.sourceFile, e.line, getClassName()),
  index(e.index), limit(e.limit) {}
 //-------------------------------------------------------------------------
 String IndexOutOfBoundsException::toString() const
@@ -173,10 +194,14 @@ IndexOutOfBoundsException::~IndexOutOfBoundsException() {}
 //-------------------------------------------------------------------------
 IOException::IOException(const String& msg, const String& sourceFile,
                      int line, const FileName& f)
-:Exception(msg, sourceFile, line), fileName(f) {}
+:Exception(msg, sourceFile, line, getClassName()), fileName(f) {}
+//-------------------------------------------------------------------------
+IOException::IOException(const String& msg, const String& sourceFile,
+                     int line, const FileName& f, const String callerName)
+:Exception(msg, sourceFile, line, callerName), fileName(f) {}
 //-------------------------------------------------------------------------
 IOException::IOException(const IOException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String IOException::toString() const
 { return Exception::toString() + "\n  fileName =  " + fileName; }
@@ -192,11 +217,11 @@ IOException::~IOException() {}
 //-------------------------------------------------------------------------
 IdAlreadyExistsException::IdAlreadyExistsException(const String& msg,
                     const String& sourceFile, int line)
-:Exception(msg, sourceFile, line) {}
+:Exception(msg, sourceFile, line, getClassName()) {}
 //-------------------------------------------------------------------------
 IdAlreadyExistsException::IdAlreadyExistsException(
                   const IdAlreadyExistsException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String IdAlreadyExistsException::getClassName() const
 { return "IdAlreadyExistsException"; }
@@ -210,10 +235,10 @@ IdAlreadyExistsException::~IdAlreadyExistsException() {}
 //-------------------------------------------------------------------------
 InvalidDataException::InvalidDataException(const String& msg,
         const String& sourceFile, int line, const FileName& f)
-:IOException(msg, sourceFile, line, f) {}
+:IOException(msg, sourceFile, line, f, getClassName()) {}
 //-------------------------------------------------------------------------
 InvalidDataException::InvalidDataException(const InvalidDataException& e)
-:IOException(e.msg, e.sourceFile, e.line, e.fileName) {}
+:IOException(e.msg, e.sourceFile, e.line, e.fileName, getClassName()) {}
 //-------------------------------------------------------------------------
 String InvalidDataException::getClassName() const
 { return "InvalidDataException"; }
@@ -227,10 +252,10 @@ InvalidDataException::~InvalidDataException() {}
 //-------------------------------------------------------------------------
 OutOfMemoryException::OutOfMemoryException(const String& msg,
                     const String& sourceFile, int line)
-:Exception(msg, sourceFile, line) {}
+:Exception(msg, sourceFile, line, getClassName()) {}
 //-------------------------------------------------------------------------
 OutOfMemoryException::OutOfMemoryException(const OutOfMemoryException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String OutOfMemoryException::getClassName() const
 { return "OutOfMemoryException"; }
@@ -244,11 +269,11 @@ OutOfMemoryException::~OutOfMemoryException() {}
 //-------------------------------------------------------------------------
 FileNotFoundException::FileNotFoundException(const String& msg,
         const String& sourceFile, int line, const FileName& f)
-:IOException(msg, sourceFile, line, f) {}
+:IOException(msg, sourceFile, line, f, getClassName()) {}
 //-------------------------------------------------------------------------
 FileNotFoundException::FileNotFoundException(
                   const FileNotFoundException& e)
-:IOException(e.msg, e.sourceFile, e.line, e.fileName) {}
+:IOException(e.msg, e.sourceFile, e.line, e.fileName, getClassName()) {}
 //-------------------------------------------------------------------------
 String FileNotFoundException::getClassName() const
 { return "FileNotFoundException"; }
@@ -262,11 +287,11 @@ FileNotFoundException::~FileNotFoundException() {}
 //-------------------------------------------------------------------------
 ParamNotFoundInConfigException::ParamNotFoundInConfigException(const String& msg,
         const String& sourceFile, int line)
-:Exception(msg, sourceFile, line) {}
+:Exception(msg, sourceFile, line, getClassName()) {}
 //-------------------------------------------------------------------------
 ParamNotFoundInConfigException::ParamNotFoundInConfigException(
                   const ParamNotFoundInConfigException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String ParamNotFoundInConfigException::getClassName() const
 { return "ParamNotFoundInConfigException"; }
@@ -280,11 +305,11 @@ ParamNotFoundInConfigException::~ParamNotFoundInConfigException() {}
 //-------------------------------------------------------------------------
 ConfigCheckException::ConfigCheckException(const String& msg,
         const String& sourceFile, int line)
-:Exception(msg, sourceFile, line) {}
+:Exception(msg, sourceFile, line, getClassName()) {}
 //-------------------------------------------------------------------------
 ConfigCheckException::ConfigCheckException(
                   const ConfigCheckException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String ConfigCheckException::getClassName() const
 { return "ConfigCheckException"; }
@@ -298,10 +323,10 @@ ConfigCheckException::~ConfigCheckException() {}
 //-------------------------------------------------------------------------
 EOFException::EOFException(const String& msg, const String& sourceFile,
                                                int line, const FileName& f)
-:IOException(msg, sourceFile, line, f) {}
+:IOException(msg, sourceFile, line, f, getClassName()) {}
 //-------------------------------------------------------------------------
 EOFException::EOFException(const EOFException& e)
-:IOException(e.msg, e.sourceFile, e.line, e.fileName) {}
+:IOException(e.msg, e.sourceFile, e.line, e.fileName, getClassName()) {}
 //-------------------------------------------------------------------------
 String EOFException::getClassName() const { return "EOFException"; }
 //-------------------------------------------------------------------------
