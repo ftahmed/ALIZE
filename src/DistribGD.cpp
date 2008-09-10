@@ -207,7 +207,7 @@ void DistribGD::computeAll()
 
   for (i=0; i< _vectSize; i++)
   {
-    assert(vect[i] != 0.0);
+  	if( vect[i] == 0.0) { throw Exception( "Assertion 'vect[i] != 0.0' - Can't invert covariance vector - This error is mainly due to bad parametric data !", __FILE__, __LINE__) ; }
     _covInvVect[i] = 1.0/vect[i];
   }
 
