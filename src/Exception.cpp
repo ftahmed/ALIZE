@@ -109,7 +109,7 @@ String Exception::getClassName() const { return "Exception"; }
  *
  * TODO: make gdb call etc. parametrable through a config option (i.e. debugLevel) for:
  *  - do a 'bt full' to show also local variables
- *  - launch interactive gdb to be able to analyze manually (without '-batch')
+ *  - launch interactive gdb to be able to analyze manually (without '--batch')
  */
 String Exception::stackTrace( const String callerName) const
 {
@@ -119,6 +119,11 @@ String Exception::stackTrace( const String callerName) const
 	 * Thus we don't build a stack trace (otherwise, we loose far too much time. */
 	if( callerName == "EOFException") {
 		return "" ;
+	}
+	if( callerName == "OutOfMemoryException") {
+		// don't allocate a String, since we don't have any memory any more... (implies putting msg twice hardcoded)
+		fprintf(stderr, "OutOfMemoryException: Exception::stackTrace() won't succeed in tracing the stack...");
+		return "OutOfMemoryException: Exception::stackTrace() won't succeed in tracing the stack..." ;
 	}
 
 	/*! FileNotFoundException may be catched non-failing in EnergyDetectorMain.cpp(1*),
@@ -134,27 +139,47 @@ String Exception::stackTrace( const String callerName) const
 	data = " *** Exception::stackTrace() uses gdb and GNU/Linux' /proc fs which are unavailable on Windows - won't trace the stack.\n" ;
 #else  ///< assuming GNU/Linux system - ATTENTION: doesn't work on Mac (no procfs)
 	// fetch required bits (workaround the fact we don't have access to any info (argv[0] i.e.) )
-	char mistralProg[2048];
+	char* mistralProg = new char[2048];
 	size_t length = readlink("/proc/self/exe", mistralProg, 2048);
 	mistralProg[length] = '\0';
-	pid_t myPid = getpid() ;
+	char* myPid = new char[9]; //usually 32k -> 5chars+nul, max possible is 8chars
+	sprintf( myPid, "%d", getpid() ) ;
 
 	// TODO: escape mistralProg to avoid nasty things
 	// with 'bt full', prints also local variables (not very useful if having only complex objects...)
-	//String cmd = "gdb -batch -ex='bt full' " + String(mistralProg) +" "+ String::valueOf(myPid) ;
-	String cmd = "gdb -batch -ex=bt " + String(mistralProg) +" "+ String::valueOf(myPid) ;
-	data += "stack trace by GDB [" + cmd +"]\n" ;
+	//String cmd = "gdb --batch -ex='bt full' " + String(mistralProg) +" "+ String(myPid) ;
+#ifdef THREAD
+	String cmd = "gdb --batch -ex='info threads' -ex=bt " + String(mistralProg) +" "+ String(myPid) ; //doesn't hurt if there's no threads split off
+#else
+	String cmd = "gdb --batch -ex=bt " + String(mistralProg) +" "+ String(myPid) ;
+#endif
+	data += callerName + "; stack trace by GDB [" + cmd +"]\n" ;
 
 	// run cmd and read its output
 	size_t MAX_BUFFER = 255 ;
 	FILE *stream;
 	char buffer[MAX_BUFFER];
-
 	stream = popen( cmd.c_str(), "r");
 	while( fgets(buffer, MAX_BUFFER, stream) != NULL ) {
 	   data += buffer ;
 	}
 	pclose(stream);
+	
+	/* //another way to do it (the above is +- a wrapper to this)
+	pid_t pid;
+	pid = fork();
+	if ( pid < 0 ) {
+		printf( "fork failed" );
+		//exit(1);
+	} else if ( pid ==0 ) {
+		printf ( "I'm the child (%d), my parent is %d\n", getpid(), getppid());
+		printf( "executing [gdb --batch -ex=bt %s %s]\n", mistralProg, myPid) ;
+		int ret = execlp( "gdb", "gdb", "--batch", "-ex=bt", mistralProg, myPid, (char *) NULL) ;
+		printf( "ERROR: exec returned with [%d]\n", ret) ;
+	} else {
+		printf ( "I'm the parent (%d), I too have a parent (%d)\n", getpid(), getppid() );
+	}
+	*/
 #endif
 	//fprintf( stdout, "DBG: trace[%s]", data.c_str());
 	return data;
