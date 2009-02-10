@@ -60,7 +60,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "Exception.h"
 #include "SegServer.h"
 #include "Config.h"
-//#include <cstdlib>
+
+/* g++-4.3 needs following inlcusion (seems to work without for g++-4.1 and 4.2) */
+#include <cstdlib>   /* for: qsort */
 
 using namespace alize;
 using namespace std;
