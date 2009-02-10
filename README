@@ -4,17 +4,18 @@
 #											  
 # Readme File of ALIZE package		
 #							
-# Last edit: 16 May 2008
-# Last editor : E.charton/eric.charton@univ-avignon.fr 
+# Last edit: 10 February 2009
+# Editors : E.charton/eric.charton@univ-avignon.fr 
+# Last editor : F. Verdet <florian.verdet@univ-avignon.fr>
 #						
-# Version : 1.33 - 		
+# Version : 1.34 - 		
 ##########################################################
 
 This package is part of the Mistral Project. Please visit http://mistral.univ-avignon.fr 
 for more informations and documentations.
 
-The ALIZE library is ready to use and compile. Juste launch autogen.sh (you must have 
-gcc 4 installed). 
+The ALIZE library is ready to use and compile. Just launch autogen.sh.
+The build depends on: g++ 4, gcc 4, automake (for aclocal), autoconf, autogen, libtool (for RANLIB)
 
 In case of trouble, see the "how to compile guide on" : 
 http://mistral.univ-avignon.fr/mistral_dev/pdf/mistral_technote.004.howToCompileMistral.pdf
