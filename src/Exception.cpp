@@ -58,6 +58,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "Exception.h"
 
+/* g++-4.3 needs following inlcusions (seems to work without for g++-4.1 and 4.2) */
+#include <cstdio>    /* for: stderr fprintf sprintf popen fgets pclose */
+#include <unistd.h>  /* for: readlink getpid */
+/* TODO: If you know a way to do it the clean C++ way, feel free ! */
+
 using namespace alize;
 
 //-------------------------------------------------------------------------
@@ -148,7 +153,7 @@ String Exception::stackTrace( const String callerName) const
 	// TODO: escape mistralProg to avoid nasty things
 	// with 'bt full', prints also local variables (not very useful if having only complex objects...)
 	//String cmd = "gdb --batch -ex='bt full' " + String(mistralProg) +" "+ String(myPid) ;
-#ifdef THREAD
+#ifdef THREAD  //note: no threads in ALIZE!
 	String cmd = "gdb --batch -ex='info threads' -ex=bt " + String(mistralProg) +" "+ String(myPid) ; //doesn't hurt if there's no threads split off
 #else
 	String cmd = "gdb --batch -ex=bt " + String(mistralProg) +" "+ String(myPid) ;
