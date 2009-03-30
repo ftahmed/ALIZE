@@ -153,6 +153,62 @@ void A::accumulate(const Feature& f)
   _stdComputed = false;
 }
 //-------------------------------------------------------------------------
+void A::add(const FrameAccGD& f)
+{
+  const unsigned long vectSize = f.getVectSize();
+  if (!_vectSizeDefined)
+  {
+    _vectSize = vectSize;
+    _accVect.setSize(_vectSize);
+    _accVect.setAllValues(0.0);
+    _xaccVect.setSize(_vectSize);
+    _xaccVect.setAllValues(0.0);
+    _vectSizeDefined = true;
+  }
+  else if (vectSize != _vectSize)
+    throw Exception("Incompatible vectSize ("
+          + String::valueOf(vectSize) + "/"
+          + String::valueOf(_vectSize) + ")", __FILE__, __LINE__);
+
+  const DoubleVector& accVect =  f.getAccVect();
+  const DoubleVector& xAccVect = f.getxAccVect();
+
+  for(unsigned long i = 0; i<_vectSize; i++)
+  {
+    _accVect[i] += accVect[i];
+    _xaccVect[i] += xAccVect[i];
+  }
+  _count += f.getCount();
+  _computed = false;
+  _stdComputed = false;
+}
+//-------------------------------------------------------------------------
+void A::deaccumulate(const Feature& f)
+{
+  const unsigned long vectSize = f.getVectSize();
+  if (!_vectSizeDefined)
+  {
+	return;
+  }
+  else if (vectSize != _vectSize)
+    throw Exception("Incompatible vectSize ("
+          + String::valueOf(vectSize) + "/"
+          + String::valueOf(_vectSize) + ")", __FILE__, __LINE__);
+
+  const double* dataVect = f.getDataVector();
+
+  for (unsigned long i=0; i<_vectSize; i++)
+  {
+    const double v = dataVect[i];
+    _accVect[i] -= v;
+    _xaccVect[i] -= v*v;
+  }
+  _count--;
+  _computed = false;
+  _stdComputed = false;
+
+}
+//-------------------------------------------------------------------------
 void A::computeAll()
 {
   if (_count == 0)
@@ -173,6 +229,22 @@ void A::computeAll()
     meanVect[i] = mean;
     covVect[i] = xaccVect[i]*invCount - mean*mean;
   }
+
+   // compute det --------------------------------
+
+  _det = 1.0;
+  for (i=0; i< _vectSize; i++)
+  {
+     _det *= covVect[i];
+  }
+
+  // compute cst -------------------------------
+
+  if (_det > EPS_LK)
+    _cst = 1.0 / ( pow(_det, 0.5) * pow( PI2 , _vectSize/2.0 ) );
+  else
+    _cst = 1.0 / ( pow(EPS_LK, 0.5) * pow( PI2 , _vectSize/2.0 ) );
+
   _computed = true;
 }
 //-------------------------------------------------------------------------

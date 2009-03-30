@@ -2,10 +2,13 @@
 Alize is a free, open tool for speaker recognition
 
 Alize is a development project initiated by the ELISA consortium
-  [www.lia.univ-avignon.fr/heberges/ALIZE/ELISA] and funded by the
+  [alize.univ-avignon.fr] and funded by the
   French Research Ministry in the framework of the
   TECHNOLANGUE program [www.technolangue.net]
   [www.technolangue.net]
+	
+Alize is since 2009 part of the Mistral Project 
+  [mistral.univ-avignon.fr]
 
 The Alize project team wants to highlight the limits of voice 
   authentication in a forensic context.
@@ -31,11 +34,14 @@ The Alize project team wants to highlight the limits of voice
   Contact Jean-Francois Bonastre for more information about the licence or
   the use of Alize
 
-Copyright (C) 2003-2005
+Copyright (C) 2003-2005-2007-2008-2009
   Laboratoire d'informatique d'Avignon [www.lia.univ-avignon.fr]
   Frederic Wils [frederic.wils@lia.univ-avignon.fr]
   Jean-Francois Bonastre [jean-francois.bonastre@lia.univ-avignon.fr]
+  Eric Charton [eric.charton@univ-avignon.fr]
       
+Part of this code is from LIUM Laboratory - Sylvain Meigner
+
 This file is part of Alize.
 
 This library is free software; you can redistribute it and/or
@@ -61,6 +67,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef WIN32
   #include <cfloat> // for _isnan()
   #define ISNAN(x) _isnan(x)
+#elif __APPLE__
+  #define ISNAN(x) std::isnan(x)
 #else
   #define ISNAN(x) isnan(x)
 #endif
@@ -79,15 +87,27 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "FrameAccGF.h"
 
 using namespace alize;
+
+#include <cstdio>
+#include <iostream>
+using namespace std;
+
+
 typedef StatServer S;
 //-------------------------------------------------------------------------
 S::StatServer(const Config& c)
-:Object(), _config(c), _pMixtureServer(NULL),
- _minLLK(c.getParam_minLLK()), _maxLLK(c.getParam_maxLLK()) { reset(); }
+:Object(), _config(c), _pMixtureServer(NULL), 
+_topDistribsVect(0, 0), _minLLK(c.getParam_minLLK()), 
+_maxLLK(c.getParam_maxLLK()){ 
+	reset(); 
+	}
 //-------------------------------------------------------------------------
 S::StatServer(const Config& c, MixtureServer& ms)
 :Object(), _config(c), _pMixtureServer(&ms),
-_minLLK(c.getParam_minLLK()), _maxLLK(c.getParam_maxLLK()) { reset(); }
+ _topDistribsVect(0, 0), _minLLK(c.getParam_minLLK()),
+_maxLLK(c.getParam_maxLLK())
+
+{ reset(); }
 //-------------------------------------------------------------------------
 void S::reset()
 {
@@ -135,8 +155,9 @@ lk_t S::computeLLK(const Mixture& m, const Feature& f) const
   weight_t*  w = m.getTabWeight().getArray();
   Distrib**  d = m.getTabDistrib();
   unsigned long distribCount = m.getDistribCount();
-  for (unsigned long c=0; c<distribCount; c++)
+  for (unsigned long c=0; c<distribCount; c++) {
     lk += w[c] * d[c]->computeLK(f);
+  }
   return computeLLK(lk);
 }
 //-------------------------------------------------------------------------
@@ -240,6 +261,40 @@ lk_t S::computeLLK(const K&, const Mixture& m, const Feature& f,
     if (lkVect.sumNonTopDistribLK < EPS_LK)
       lkVect.sumNonTopDistribLK = EPS_LK;
   }
+  return computeLLK(lk);
+}
+//-------------------------------------------------------------------------
+lk_t S::computeLLK(const K&, const Mixture& m, const Feature& f,
+                   const LKVector& lkVect)
+{
+  lk_t lk = 0.0;
+  weight_t* w = m.getTabWeight().getArray();
+  Distrib** d = m.getTabDistrib();
+  unsigned long distribCount = m.getDistribCount();
+  unsigned long c, i, nTop = _config.getParam_topDistribsCount();
+
+
+  if (nTop >= distribCount)
+    nTop = distribCount;
+  LKVector::type* v = lkVect.getArray();
+  real_t sumTopDistribWeights = 0.0;
+
+  for (i=0; i<nTop; i++)
+  {
+    c = v[i].idx;
+    sumTopDistribWeights += w[c];
+    lk += w[c] * d[c]->computeLK(f);
+  }
+  if (_config.getParam_computeLLKWithTopDistribs()) {// COMPLETE
+    lk += lkVect.sumNonTopDistribLK *
+        (1.0 - sumTopDistribWeights) / lkVect.sumNonTopDistribWeights;
+  }
+/*  else 
+	  {// PARTIAL
+    if (nTop != 0)
+      lk /= sumTopDistribWeights;
+//	cerr << "PARTIAL" << endl;
+  }*/
   return computeLLK(lk);
 }
 //-------------------------------------------------------------------------

@@ -2,10 +2,13 @@
 Alize is a free, open tool for speaker recognition
 
 Alize is a development project initiated by the ELISA consortium
-  [www.lia.univ-avignon.fr/heberges/ALIZE/ELISA] and funded by the
+  [alize.univ-avignon.fr] and funded by the
   French Research Ministry in the framework of the
   TECHNOLANGUE program [www.technolangue.net]
   [www.technolangue.net]
+	
+Alize is since 2009 part of the Mistral Project 
+  [mistral.univ-avignon.fr]
 
 The Alize project team wants to highlight the limits of voice 
   authentication in a forensic context.
@@ -31,11 +34,14 @@ The Alize project team wants to highlight the limits of voice
   Contact Jean-Francois Bonastre for more information about the licence or
   the use of Alize
 
-Copyright (C) 2003-2005
+Copyright (C) 2003-2005-2007-2008-2009
   Laboratoire d'informatique d'Avignon [www.lia.univ-avignon.fr]
   Frederic Wils [frederic.wils@lia.univ-avignon.fr]
   Jean-Francois Bonastre [jean-francois.bonastre@lia.univ-avignon.fr]
+  Eric Charton [eric.charton@univ-avignon.fr]
       
+Part of this code is from LIUM Laboratory - Sylvain Meigner
+
 This file is part of Alize.
 
 This library is free software; you can redistribute it and/or
@@ -135,7 +141,20 @@ namespace alize
     ///
     lk_t computeAndAccumulateLLK(const Feature& f, double w = 1.0f,
                 const TopDistribsAction& a = TOP_DISTRIBS_NO_ACTION);
-    
+
+    // LIUM, Sylvain
+	/// Like computeLLK() and, in addition, accumulate the log-likelihood.
+    /// The internal feature counter increases by w.
+    /// @param f the feature
+    /// @param w the weight of the feature
+    /// @param topDistribsVector a top distributions vector
+    /// @return the log-likelihood for this feature (not multiplied by w)
+    /// @exception Exception if the dimension of the mixture is not
+    ///      equals to the dimension of the feature
+    ///
+    lk_t computeAndAccumulateLLK(const Feature& f, const LKVector& topDistribsVector,
+		double w = 1.0f);
+				
     /// Like computeAndAccumulateLLK(const Feature& f...) but
     /// using the internal precalculated log-likelihood array.
     /// @return the log-likelihood value
@@ -279,4 +298,3 @@ namespace alize
 } // end namespace alize
 
 #endif // !defined(ALIZE_MixtureStat_h)
-

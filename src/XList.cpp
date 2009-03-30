@@ -2,10 +2,13 @@
 Alize is a free, open tool for speaker recognition
 
 Alize is a development project initiated by the ELISA consortium
-  [www.lia.univ-avignon.fr/heberges/ALIZE/ELISA] and funded by the
+  [alize.univ-avignon.fr] and funded by the
   French Research Ministry in the framework of the
   TECHNOLANGUE program [www.technolangue.net]
   [www.technolangue.net]
+	
+Alize is since 2009 part of the Mistral Project 
+  [mistral.univ-avignon.fr]
 
 The Alize project team wants to highlight the limits of voice 
   authentication in a forensic context.
@@ -31,11 +34,14 @@ The Alize project team wants to highlight the limits of voice
   Contact Jean-Francois Bonastre for more information about the licence or
   the use of Alize
 
-Copyright (C) 2003-2005
+Copyright (C) 2003-2005-2007-2008-2009
   Laboratoire d'informatique d'Avignon [www.lia.univ-avignon.fr]
   Frederic Wils [frederic.wils@lia.univ-avignon.fr]
   Jean-Francois Bonastre [jean-francois.bonastre@lia.univ-avignon.fr]
+  Eric Charton [eric.charton@univ-avignon.fr]
       
+Part of this code is from LIUM Laboratory - Sylvain Meigner
+
 This file is part of Alize.
 
 This library is free software; you can redistribute it and/or
@@ -52,7 +58,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
 #if !defined(ALIZE_XList_cpp)
 #define ALIZE_XList_cpp
 
@@ -151,6 +156,15 @@ XLine& XList::addLine()
   return l;
 }
 //-------------------------------------------------------------------------
+/* Modified 19/07/07 - richard.dufour@lium.univ-lemans.fr
+ */
+XLine& XList::addLine(String& key, String& value)
+{
+  XLine& l = XLine::create(key,value);
+  _current = _vector.addObject(l);
+  return l;
+}
+//-------------------------------------------------------------------------
 void XList::rewind() const { _current = 0; }
 //-------------------------------------------------------------------------
 XLine& XList::getLine(unsigned long i) const
@@ -207,6 +221,22 @@ void XList::reset()
 unsigned long XList::getLineCount() const { return _vector.size(); }
 //-------------------------------------------------------------------------
 String XList::getClassName() const { return "XList"; }
+//-------------------------------------------------------------------------
+/* Modified 19/07/07 - richard.dufour@lium.univ-lemans.fr
+ */
+String XList::searchValue(String& index)
+{
+  String result = "";
+  for (unsigned long i=0; i<_vector.size(); i++)
+  {
+    XLine& l = _vector.getObject(i);
+    if (l.getElement(0) == index) {
+      return l.getElement(1);
+      break;
+    }
+  }
+  return result;
+}
 //-------------------------------------------------------------------------
 String XList::toString() const
 {

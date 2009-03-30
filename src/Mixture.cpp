@@ -2,10 +2,13 @@
 Alize is a free, open tool for speaker recognition
 
 Alize is a development project initiated by the ELISA consortium
-  [www.lia.univ-avignon.fr/heberges/ALIZE/ELISA] and funded by the
+  [alize.univ-avignon.fr] and funded by the
   French Research Ministry in the framework of the
   TECHNOLANGUE program [www.technolangue.net]
   [www.technolangue.net]
+	
+Alize is since 2009 part of the Mistral Project 
+  [mistral.univ-avignon.fr]
 
 The Alize project team wants to highlight the limits of voice 
   authentication in a forensic context.
@@ -31,11 +34,14 @@ The Alize project team wants to highlight the limits of voice
   Contact Jean-Francois Bonastre for more information about the licence or
   the use of Alize
 
-Copyright (C) 2003-2005
+Copyright (C) 2003-2005-2007-2008-2009
   Laboratoire d'informatique d'Avignon [www.lia.univ-avignon.fr]
   Frederic Wils [frederic.wils@lia.univ-avignon.fr]
   Jean-Francois Bonastre [jean-francois.bonastre@lia.univ-avignon.fr]
+  Eric Charton [eric.charton@univ-avignon.fr]
       
+Part of this code is from LIUM Laboratory - Sylvain Meigner
+
 This file is part of Alize.
 
 This library is free software; you can redistribute it and/or
@@ -52,6 +58,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
 
 #if !defined(ALIZE_Mixture_cpp)
 #define ALIZE_Mixture_cpp
@@ -155,6 +162,8 @@ Distrib** M::getTabDistrib() const
 String M::getId() const { return _id; }
 //-------------------------------------------------------------------------
 void M::setId(const K&, const String& id) { _id = id; }
+//-------------------------------------------------------------------------
+void M::setId(const String& id) { _id = id; }
 //-------------------------------------------------------------------------
 unsigned long M::getDistribCount() const
 { return _distribVect.size(); }

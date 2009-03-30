@@ -138,7 +138,7 @@ namespace alize
     FeatureFileReaderFormat_SPRO3,
     FeatureFileReaderFormat_SPRO4,
     FeatureFileReaderFormat_HTK,
-    FeatureFileReaderFormat_SPHERE,
+    FeatureFileReaderFormat_SPHERE
   };
 
   enum MixtureFileReaderFormat

@@ -79,6 +79,12 @@ namespace alize
     virtual ~FrameAccGD();
     virtual void accumulate(const Feature& f);
 
+    /// Delete an accumulated feature
+    /// @param f the feature to delete
+    /// LIUM Modification
+    ///
+    virtual void deaccumulate(const Feature& f);
+
     /// Returns the accumulated square parameters vector
     /// @return the accumulated square parameters vector
     ///
@@ -93,6 +99,11 @@ namespace alize
     /// @return the standard deviation vector
     ///
     const DoubleVector& getStdVect();
+
+    /// Add the values from another FrameAcc - LIUM Modification
+    /// @param f the frame acc
+    ///
+    void add(const FrameAccGD& f);
 
     virtual String getClassName() const;
 

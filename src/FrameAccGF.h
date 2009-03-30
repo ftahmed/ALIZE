@@ -79,6 +79,12 @@ namespace alize
     virtual ~FrameAccGF();
     virtual void accumulate(const Feature& f);
 
+    /// Delete an accumulated feature
+    /// @param f the feature to delete
+    /// LIUM Modification
+    ///
+    virtual void deaccumulate(const Feature& f);
+
     /// Returns the accumulated multiplication parameters matrix
     /// @return the accumulated multiplication parameters matrix
     ///
@@ -96,11 +102,18 @@ namespace alize
 
     virtual String getClassName() const;
 
+    /// Add values from another FrameAcc - LIUM Modification
+    /// @param f the frame acc
+    ///
+    void add(const FrameAccGF& f);
+
   private:
 
     DoubleSquareMatrix _xaccMatrix;
     DoubleSquareMatrix _covMatrix;
     DoubleSquareMatrix _stdMatrix;
+    DoubleSquareMatrix _covInvMatr; /*!< inverse covariance matrix */
+
     virtual void computeAll();
     void copy(const FrameAccGF&);
     bool operator==(const FrameAccGF&) const;/*!Not implemented*/
