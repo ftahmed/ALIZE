@@ -1,0 +1,42 @@
+##########################################################
+#      MISTRAL PROJECT - 2007 / 2008                            
+#	  http://mistral.univ-avignon.fr
+#											  
+# Readme File of ALIZE package		
+#							
+# Last edit: 10 February 2009
+# Editors : E.charton/eric.charton@univ-avignon.fr 
+# Last editor : F. Verdet <florian.verdet@univ-avignon.fr>
+#						
+# Version : 1.34 - 		
+##########################################################
+
+This package is part of the Mistral Project. Please visit http://mistral.univ-avignon.fr 
+for more informations and documentations.
+
+The ALIZE library is ready to use and compile. Just launch autogen.sh.
+The build depends on: g++ 4, gcc 4, automake (for aclocal), autoconf, autogen, libtool (for RANLIB)
+
+In case of trouble, see the "how to compile guide on" : 
+http://mistral.univ-avignon.fr/mistral_dev/pdf/mistral_technote.004.howToCompileMistral.pdf
+
+FAQ
+----
+
+Q: How to generate the ALIZE library under Win32
+A: Use Visual C++ 2005 with the project file and compile
+
+Q: How to generate the ALIZE library under Linux 
+A: In a shell, ./autogen.sh, libalize.a can be found in ./src/ and ./lib/ folder
+
+Q: I have some problems to compile ALIZE
+A: Please read this technote : http://mistral.univ-avignon.fr/mistral_dev/pdf/mistral_technote.004.howToCompileMistral.pdf
+
+Q: How to I link ALIZE with my projects
+A: See the example in the ./exemple directory. Just include the header file alize.h at the begining of your source code and link statically libalize.a during your project compilation
+
+Q: After ./autogen.sh, autoconf tells ./ltmain.sh required is missing and stops.
+A: In a bash shell, do > ltmain.sh or touch ltmain.sh
+
+Q: How to generate Doxygen documentation
+A: In a shell, in the main folder of Alize, doxygen doxygen.cfg (need to have doxygen installed)
