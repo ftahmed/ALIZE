@@ -73,6 +73,7 @@ namespace alize
   {
     public :
       /// Create an Exception object
+      ///   Also tries to fetch a stack trace and stores it in the trace field.
       /// @param msg detailed message
       /// @param sourceFile name of the source file that thrown the
       ///    exception
@@ -80,13 +81,36 @@ namespace alize
       ///
       explicit Exception(const String& msg,
                          const String& sourceFile, int line);
+      explicit Exception(const String& msg,
+                         const String& sourceFile, int line, const String callerName);
       Exception(const Exception&);
       virtual ~Exception();
       virtual String toString() const;
       virtual String getClassName() const;
+
+      //void OBS__storeStackTrace() ;
+      /*! \brief  Tries to get the stack trace of current point
+       *
+       * \param callerName name of the class derived FooException class
+       *   (used to avoid gathering stack trace for EOFException which are non-failing)
+       *
+       * \note  ATTENTION:
+       *    works only on GNU/Linux systems, because:
+       *    - it calls gdb
+       *    - it accesses the symlink /proc/self/exe to fetch the name of current executable
+       *
+       * \date  20080904120004
+       * \author  Florian Verdet _goto. <florian.verdet@univ-avignon.fr>,<hacking@verdet.ch>
+       *   CREDITS:
+       *    Idea to call gdb from within exception/crash handler to get a correct stack trace comes from:
+       *     Mark Kretschmann markey, prominent Amarok hacker / C++ guru
+       */
+      String stackTrace( const String callerName) const ;
+
       const String msg; // message of the exception
       const String sourceFile; // name of the source file
       const int  line; // line number of the source file
+      String trace ;  ///< gets filled by sTrace upon throwing time to fetch current stack trace
     private:
       bool operator==(const Exception&) const;   /*!Not implemented*/
       bool operator!=(const Exception& e) const;   /*!Not implemented*/
@@ -137,6 +161,8 @@ namespace alize
     public :
       explicit IOException(const String& msg,
             const String& sourceFile, int line, const FileName& f);
+      explicit IOException(const String& msg,
+            const String& sourceFile, int line, const FileName& f, const String callerName);
       IOException(const IOException&);
       virtual ~IOException();
       virtual String toString() const;

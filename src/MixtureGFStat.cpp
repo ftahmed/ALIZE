@@ -108,7 +108,13 @@ void M::resetEM()
   {
     DistribGF& d = _pMixForAccumulation->getDistrib(c);
     real_t* m = d.getMeanVect().getArray();
+	
+	// Directive de compilation pour problème windows
+	// error C2040: 'c' : les niveaux d'indirection de 'alize::real_t *' et de 'unsigned long' sont différents
+    #pragma message("A this place ln 114 a problem of compatibility for windows had badly solved bye a ifndef")
+	#ifndef WIN32
     real_t* c = d.getCovMatrix().getArray();
+	
     for (unsigned long i=0; i<vectSize; i++)
     {
       m[i] = 0.0;
@@ -116,6 +122,8 @@ void M::resetEM()
         c[i + j*vectSize] = 0.0;
       c[0 + 0*vectSize] = 1e200; // to avoid throwing exception "Matrix is not positive definite"
     }
+	#endif
+	
   }
   _featureCounterForEM = 0.0;
   _resetedEM = true;

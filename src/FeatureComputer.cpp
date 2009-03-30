@@ -68,7 +68,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <memory>
 #include <cmath>
 #include <iostream>
-#include "spro.h"
+//#include "spro.h"
 
 #define OM_EPSILON 0.00001
 #define round(x) ((int)ceil(x) - x < x - (int)floor(x)) ? (int)ceil(x) : (int)floor(x)
@@ -76,6 +76,198 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using namespace std;
 using namespace alize;
 typedef FeatureComputer R;
+
+
+
+
+/**
+	\attention this methods are included in ALIZE in order to include parameterization, but not done at this time 
+	just include in this file (FeatureComputer.cpp) to remove sig.c and spro.h to allow linking with SPRO
+*/
+
+/*
+ * Weighting windows
+ */
+ 
+# define SPRO_NULL_WINDOW 0          /* no window                             */
+# define SPRO_HAMMING_WINDOW 1       /* Hamming window                        */
+# define SPRO_HANNING_WINDOW 2       /* Hanning window                        */
+# define SPRO_BLACKMAN_WINDOW 3      /* Blackman window                       */
+
+#define XX_PI 3.1415926535897932
+
+# define SPRO_MIN_FFT_SIZE 64        /* minimum FFT size                      */
+# define SPRO_MAX_FFT_SIZE 2048      /* maximum FFT size                      */
+# define SPRO_MIN_FILTERS 3          /* miumium nb. of filters in a bank      */
+# define SPRO_MAX_FILTERS 100        /* maximum nb. of filters in a bank      */
+
+# define SPRO_ENERGY_FLOOR 1.0       /* floor energy below this threshold     */
+
+# define SPRO_KERNEL_INIT_ERR 100    /* using uninitialized kernel error      */
+# define SPRO_FFT_INIT_ERR 101       /* FFT initialization error              */
+
+# define SPRO_ALLOC_ERR 10           /* allocation error                      */
+
+# define fft_reset() fft_init(0)
+
+# define dct_reset() dct_init(0, 0)
+
+lsigbuf_t *lsig_buf_alloc(size_t nbytes, unsigned short nbps)
+{
+  lsigbuf_t *p;
+
+  if ((p = (lsigbuf_t *)malloc(sizeof(lsigbuf_t))) == NULL)
+    return(NULL);
+  
+  if ((p->s = (short *)malloc(nbytes)) == NULL) {
+    free(p);
+    return(NULL);
+  }
+
+  p->m = nbytes / nbps;
+  if (p->m %2)
+    (p->m)--;
+
+  p->n = 0;
+  
+  return(p);
+}
+void lsig_buf_free(lsigbuf_t *p)
+{
+  if (p) {
+    if (p->s)
+      free(p->s);
+    free(p);
+  }
+}
+lspsig_t *lsig_alloc(unsigned long n)
+{
+  lspsig_t *p;
+
+  if ((p = (lspsig_t *)malloc(sizeof(lspsig_t))) == NULL)
+    return(NULL);
+  
+  if ((p->s = (lsample_t *)malloc(n * sizeof(lsample_t))) == NULL) {
+    free(p);
+    return(NULL);
+  }
+  
+  p->n = n;
+
+  return(p);
+}
+void lsig_free(lspsig_t *p)
+{
+  if (p) {
+    if (p->s)
+      free(p->s);
+    free(p);
+  }
+}
+double lgetsample(void *p, unsigned long n, unsigned short m)
+{
+  double v;
+
+  switch(m) {
+  case 1:
+    v = (double)(*((char *)p+n));
+    break;
+  case 2:
+    v = (double)*((short *)p+n);
+    break;
+  case 4:
+    v = (double)*((long *)p+n);
+  default:
+    v = 0.0;
+  }
+  return(v);
+}
+lspsig_t *lsig_weight(lspsig_t *s, lsample_t *buf, float *w) 
+{
+  lsample_t *p = s->s;
+  unsigned long i, n = s->n;
+
+  if (w)
+    for (i = 0; i < n; i++) 
+      *(p+i) = (*(buf+i)) * (*(w+i));
+  else
+    memcpy(p, buf, n * sizeof(lsample_t));
+
+  return(s);
+}
+double lsig_normalize(lspsig_t *s, int flag)
+{
+  unsigned long i;
+  lsample_t *p = s->s;
+  double g = 0.0, v;
+
+  for (i = 0; i < s->n; i++) {
+    v = (double)(*(p+i));
+    g += v * v;
+  }
+  
+  g = sqrt(g);
+  
+  if (flag && g != 0.0) {
+    v = 1.0 / g;
+    for (i = 0; i < s->n; i++)
+      *(p+i) *= v;
+  }
+  
+  return(g);
+}
+float *lset_sig_win(unsigned long n, int win)
+{
+  unsigned long i;
+  float *w = NULL;
+  double r, pixpi = 2.0 * XX_PI;
+
+  
+  switch(win) {
+
+  case SPRO_HAMMING_WINDOW:
+    if ((w = (float *)malloc(n * sizeof(double))) != NULL) {
+      for (i = 0; i < n; i++)
+	*(w+i) = (float)(0.54 - 0.46 * cos(pixpi * (double)i / (double)n));
+    }
+    break;
+    
+  case SPRO_HANNING_WINDOW:
+    if ((w = (float *)malloc(n * sizeof(double))) != NULL) {
+      for (i = 0; i < n; i++)
+	*(w+i) = (float)(0.5 * (1 - cos(pixpi * (double)i / (double)n)));
+    }
+    break;
+    
+  case SPRO_BLACKMAN_WINDOW:
+    if ((w = (float *)malloc(n * sizeof(double))) != NULL) {
+      for (i = 0; i < n; i++) {
+	r = (double)i / (double)n;
+	*(w+i) = (float)(0.42 - 0.5 * cos(pixpi * r) + 0.08 * cos(2 * pixpi * r));
+      }
+    }
+      
+  default:
+    break;
+  }
+  
+  return(w);
+}
+float *lset_lifter(int l, unsigned short n)
+{
+  float *h;
+  unsigned short i;
+ 
+  if ((h = (float *)malloc(n * sizeof(float))) != NULL)
+    for (i = 0; i < n; i++)
+      *(h+i) = (float)(1.0 + 0.5 * (double)l * sin((double)(i + 1) * XX_PI / (double)l));
+
+  return(h);
+}
+
+
+
+
 
 /*
 --featureComputerNumCeps     integer - number of cepstral coefficients (12)
@@ -151,7 +343,7 @@ void R::init(AudioInputStream& a, const Config& c)
   o = "featureComputerPreEmphasis";
   if (c.existsParam(o))
   {
-    float x = c.getFloatParam(o);
+    float x = (float)c.getFloatParam(o);
     if (x < 0.0 || x >= 1.0)
       throw Exception("Invalid pre-emphasis coefficient "
         + String::valueOf(x) + " (not in [0,1[)", __FILE__, __LINE__);
@@ -163,7 +355,7 @@ void R::init(AudioInputStream& a, const Config& c)
   o = "featureComputerShift";
   if (c.existsParam(o))
   {
-    float x = c.getFloatParam(o);
+    float x = (float)c.getFloatParam(o);
     if (x <= 0.0)
       throw Exception("Invalid shift "
           + String::valueOf(x) + ": (must be > 0.0 ms)", __FILE__, __LINE__);
@@ -174,7 +366,7 @@ void R::init(AudioInputStream& a, const Config& c)
 
   o = "featureComputerLength";
   if (c.existsParam(o))
-    _fm_l = c.getFloatParam(o);
+    _fm_l = (float)c.getFloatParam(o);
 
   // weighting window
 
@@ -206,7 +398,7 @@ void R::init(AudioInputStream& a, const Config& c)
       throw Exception("invalid number of filters " + String::valueOf(x)
         + " (not in ["+String::valueOf(SPRO_MIN_FILTERS)+","+String::valueOf(SPRO_MAX_FILTERS)+"])",
         __FILE__, __LINE__);
-    _nfilters = x;
+    _nfilters = (unsigned short)x;
   }
 
   // spectral resolution coefficient
@@ -214,7 +406,7 @@ void R::init(AudioInputStream& a, const Config& c)
   o = "featureComputerAlpha";
   if (c.existsParam(o))
   {
-    float x = c.getFloatParam(o);
+    float x = (float)c.getFloatParam(o);
     if (x <= -1 || x >= 1)
       throw Exception("Invalid spectral resolution coefficient "
         + String::valueOf(x) + " (not in ]-1,1[)", __FILE__, __LINE__);
@@ -230,13 +422,13 @@ void R::init(AudioInputStream& a, const Config& c)
 
   o = "featureComputerFreqMin";
   if (c.existsParam(o))
-    _f_min = c.getFloatParam(o);
+    _f_min = (float)c.getFloatParam(o);
 
   // higher frequency bound
 
   o = "featureComputerFreqMax";
   if (c.existsParam(o))
-    _f_max = c.getFloatParam(o);
+    _f_max = (float)c.getFloatParam(o);
 
   // FFT length
 
@@ -248,7 +440,7 @@ void R::init(AudioInputStream& a, const Config& c)
       throw Exception("invalid FFT length " + String::valueOf(x)
         + " (not in ["+String::valueOf(SPRO_MIN_FFT_SIZE)+","+String::valueOf(SPRO_MAX_FFT_SIZE)+"])",
         __FILE__, __LINE__);
-    _nfilters = x;
+    _nfilters = (unsigned short)x;
   }
 
   // liftering value
@@ -283,7 +475,7 @@ void R::init(AudioInputStream& a, const Config& c)
 
   _sampleRate = 1000.0/(real_t)_fm_d;
 
-  _pBuf = sig_buf_alloc(_ibs, _pAudioInputStream->getSampleBytes());
+  _pBuf = lsig_buf_alloc(_ibs, _pAudioInputStream->getSampleBytes());
   if (_pBuf == NULL)
     throw Exception("", __FILE__, __LINE__);
   _nread = 0;
@@ -308,28 +500,28 @@ void R::init(AudioInputStream& a, const Config& c)
   _l = (unsigned long)(_fm_l * _pAudioInputStream->getFrameRate() / 1000.0); /* frame length in samples */
   _d = (unsigned long)(_fm_d * _pAudioInputStream->getFrameRate() / 1000.0); /* frame shift in samples */
 
-  if ((_s = sig_alloc(_l)) == NULL) /* frame signal */
+  if ((_s = lsig_alloc(_l)) == NULL) /* frame signal */
     throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
 
   if (_win)
   {
-    if ((_buf = (sample_t *)malloc(_l * sizeof(sample_t))) == NULL) /* frame buffer */
+    if ((_buf = (lsample_t *)malloc(_l * sizeof(lsample_t))) == NULL) /* frame buffer */
       throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
-    if ((_w = set_sig_win(_l, _win)) == NULL)
+    if ((_w = lset_sig_win(_l, _win)) == NULL)
       throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
   }
   else
     _buf = _s->s;
 
-  if ((_e = (spf_t *)malloc(_nfilters * sizeof(spf_t))) == NULL) { /* filter-bank output */
+  if ((_e = (lspf_t *)malloc(_nfilters * sizeof(lspf_t))) == NULL) { /* filter-bank output */
     throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
   }
 
-  if ((_c = (spf_t *)malloc((_numceps+1) * sizeof(spf_t))) == NULL)
+  if ((_c = (lspf_t *)malloc((_numceps+1) * sizeof(lspf_t))) == NULL)
     throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
 
   if (_lifter)
-    if ((_r = set_lifter(_lifter, _numceps)) == NULL)
+    if ((_r = lset_lifter(_lifter, _numceps)) == NULL)
     throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
 
   if (_usemel) {
@@ -350,7 +542,7 @@ bool R::readFeature(Feature& f, unsigned long step)
 
   /* weight signal */
   if (_win)
-    sig_weight(_s, _buf, _w);
+    lsig_weight(_s, _buf, _w);
 
   /* apply the filter bank */
   if ((log_filter_bank(_s, _nfilters, _idx, _e)) != 0)
@@ -370,9 +562,9 @@ bool R::readFeature(Feature& f, unsigned long step)
   if (_flags.useE)
   {
     double energy;
-    if ((energy = sig_normalize(_s, 0)) < SPRO_ENERGY_FLOOR)
+    if ((energy = lsig_normalize(_s, 0)) < SPRO_ENERGY_FLOOR)
 	    energy = SPRO_ENERGY_FLOOR;
-    *(_c+_numceps) = (spf_t)(2.0 * log(energy));
+    *(_c+_numceps) = (lspf_t)(2.0 * log(energy));
   }
 
   f.setVectSize(K::k, _vectSize);
@@ -457,7 +649,7 @@ const String& R::getNameOfASource(unsigned long srcIdx)
 #endif
 }
 //-------------------------------------------------------------------------
-int R::get_next_sig_frame(int ch, int l, int d, float a, sample_t *s)
+int R::get_next_sig_frame(int ch, int l, int d, float a, lsample_t *s)
 {
   unsigned long nread;          /* number of samples read in buffer         */
   unsigned short i, j;
@@ -486,8 +678,8 @@ int R::get_next_sig_frame(int ch, int l, int d, float a, sample_t *s)
     if (nread)
       while (j < l && _bp < _pBuf->n)
       {
-        v = getsample(p, _bp, _pAudioInputStream->getSampleBytes());
-      	*(s+j) = (sample_t)(v - a * _prev);
+        v = lgetsample(p, _bp, _pAudioInputStream->getSampleBytes());
+      	*(s+j) = (lsample_t)(v - a * _prev);
         _prev = v;
         j++;
         _bp += 1;
@@ -633,10 +825,10 @@ int R::fft_init(unsigned long npts)
  * Performs FFT on "signal" x -- either module or phase can be NULL 
  * if one is not interested in this result.
  */
-int R::fft(spsig_t *s, float *m, float *ph)
+int R::fft(lspsig_t *s, float *m, float *ph)
 {
   int i, j, n2;
-  sample_t *p = s->s;
+  lsample_t *p = s->s;
   float a, b;
 
   n2 = _fftn >> 1; /* _fftn / 2 */
@@ -661,9 +853,9 @@ int R::fft(spsig_t *s, float *m, float *ph)
   /* ----- compute modulus and phase ----- */
   if (m || ph) {
     if (m)
-      *m = (spf_t)fabs(*_fftbuf);
+      *m = (lspf_t)fabs(*_fftbuf);
     if (ph)
-      *ph = (spf_t)0.0;
+      *ph = (lspf_t)0.0;
 
     for (i = 1, j = (int)_fftn - 1; i < n2; i++, j--) {
       a = *(_fftbuf+i);
@@ -956,7 +1148,7 @@ int R::dct_init(unsigned short nin, unsigned short nout)
  *
  *  c[i]=sqrt(2/N) * sum_{j=1}^{N}(m[j] * cos(XX_PI*i*(j-0.5)/N)     i=1,...,p
  */
-int R::dct(spf_t *ip, spf_t *op)
+int R::dct(lspf_t *ip, lspf_t *op)
 {
   int i, j;
   double v;
@@ -973,7 +1165,7 @@ int R::dct(spf_t *ip, spf_t *op)
     for (j = 0; j < _dctnin; j++)
     {
       v += ( (*(ip+j)) * (*(kp+j)) );
-    *(op+i) = (spf_t)(v * _dctz);
+    *(op+i) = (lspf_t)(v * _dctz);
     //if (j==6)
          //printf("%1.18f %1.18f\n", (*(ip+j)), (*(kp+j)) );
 
@@ -1019,7 +1211,7 @@ unsigned short* R::set_alpha_idx(unsigned short n, float a, float fmin, float fm
   omax = (fmax < 0.5) ? theta(2.0 * XX_PI * fmax, a) : XX_PI;
 
   d = (omax - omin) / (float)(n + 1);
-  z = (float)((_fftn / 2) - 1) / XX_PI;
+  z = (float)(((_fftn / 2) - 1) / XX_PI);
   o = omin;
 
   i = 0;
@@ -1051,7 +1243,7 @@ float R::theta(float o, float a)
     return(o);
 
   if (o == XX_PI)
-    return(XX_PI);
+    return((float)XX_PI);
 
   a2 = a * a;
   v = atan(((1.0 - a2) * sin(o)) / ((1.0 + a2) * cos(o) - 2.0 * a));
@@ -1095,16 +1287,16 @@ float R::theta_inv(float oop,float a)
     return(0.0);
 
   if(oop >= XX_PI)
-    return(XX_PI);
+    return((float)XX_PI);
 
   oinf = 0.0;
-  osup = XX_PI;
+  osup = (float)XX_PI;
   a2 = a * a;
   b = 2.0 * a;
   do {
-    o = oinf + (osup - oinf) / 2.0;
+    o = (float)(oinf + (osup - oinf) / 2.0);
     v = atan(((1.0 - a2) * sin(o)) / ((1.0 + a2) * cos(o) - b));
-    op = (v < 0) ? (float)v + XX_PI : (float)v;
+    op = (float)((v < 0) ? (float)v + XX_PI : (float)v);
     if(op > oop)
       osup = o;
     else
@@ -1145,7 +1337,7 @@ unsigned short* R::set_mel_idx(unsigned short n, float fmin, float fmax, float s
   min = mel(fmin * srate); /* bounds and df in transform domain */
   max = mel(fmax * srate); 
   d = (max - min) / (float)(n + 1);
-  z = (float)(_fftn / 2 - 1) * 2.0 / srate;
+  z = (float)((_fftn / 2 - 1) * 2.0 / srate);
   f = min;
 
   for (i = 1; i <= n; i++) {
@@ -1161,7 +1353,7 @@ unsigned short* R::set_mel_idx(unsigned short n, float fmin, float fmax, float s
 /* ---------------------------- */
 float R::mel(float f)
 {
-  return(2595.0 * log10(1 + f / 700.0));
+  return( (float)(2595.0 * log10(1 + f / 700.0)));
 }
 //-------------------------------------------------------------------------
 /* -------------------------------- */
@@ -1197,7 +1389,7 @@ float R::mel_inv(float f)
  *                idx[1]       idx[3]  
  *
  */
-int R::log_filter_bank(spsig_t *x, unsigned short nfilt, unsigned short *idx, spf_t *e)
+int R::log_filter_bank(lspsig_t *x, unsigned short nfilt, unsigned short *idx, lspf_t *e)
 {
   int i, j, from, to, status;
   double a, s, m, re, im;
@@ -1244,7 +1436,7 @@ int R::log_filter_bank(spsig_t *x, unsigned short nfilt, unsigned short *idx, sp
 
       s += m * (1.0 - a * (j - from));
     }
-    *(e+i) = (s < SPRO_ENERGY_FLOOR) ? (spf_t)log(SPRO_ENERGY_FLOOR) : (spf_t)log(s);
+    *(e+i) = (s < SPRO_ENERGY_FLOOR) ? (lspf_t)log(SPRO_ENERGY_FLOOR) : (lspf_t)log(s);
   }
 
   return(0);
@@ -1261,7 +1453,7 @@ void R::freeMem()
     dct_reset();
   _dct_initialized = false;
   if (_pBuf != NULL)
-    sig_buf_free(_pBuf);
+    lsig_buf_free(_pBuf);
   _pBuf = NULL;
   if (_buf != NULL)
     free(_buf);
@@ -1270,7 +1462,7 @@ void R::freeMem()
     free(_w);
   _w = NULL;
   if (_s != NULL)
-    sig_free(_s);
+    lsig_free(_s);
   _s = NULL;
   if (_e != NULL)
     free(_e);
@@ -1288,4 +1480,6 @@ void R::freeMem()
 //-------------------------------------------------------------------------
 R::~FeatureComputer() { freeMem(); }
 //-------------------------------------------------------------------------
+
+
 #endif // !defined(ALIZE_FeatureComputer_cpp)

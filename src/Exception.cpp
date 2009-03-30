@@ -58,24 +58,137 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "Exception.h"
 
+/* g++-4.3 needs following inlcusions (seems to work without for g++-4.1 and 4.2) */
+#include <cstdio>    /* for: stderr fprintf sprintf popen fgets pclose */
+#include <unistd.h>  /* for: readlink getpid */
+/* TODO: If you know a way to do it the clean C++ way, feel free ! */
+
 using namespace alize;
 
 //-------------------------------------------------------------------------
 Exception::Exception(const String& msg, const String& sourceFile, int line)
-:Object(), msg(msg), sourceFile(sourceFile), line(line) {}
+:Object(), msg(msg), sourceFile(sourceFile), line(line), trace(stackTrace(getClassName())) {}
+//-------------------------------------------------------------------------
+/* NOTE: we need the name of the derived class in the superclass. But execution sequence is:
+ * superclass-initializationlist, superclass-constructor, class-initializationlist, class-constructor.
+ * The only way is to pass the className of the current class in the call to the superclass-constructor.
+ */
+Exception::Exception(const String& msg, const String& sourceFile, int line, String callerName)
+:Object(), msg(msg), sourceFile(sourceFile), line(line), trace(stackTrace(callerName)) {}
 //-------------------------------------------------------------------------
 Exception::Exception(const Exception& e)
-:Object(),msg(e.msg),sourceFile(e.sourceFile),line(e.line) {}
+:Object(),msg(e.msg),sourceFile(e.sourceFile),line(e.line),trace(e.trace) {}
 //-------------------------------------------------------------------------
 String Exception::toString() const
 {
-  return Object::toString()
+  return trace  //stack trace is output in front, since self-made message will be extended by other FooException classes
+    + Object::toString()
     + "\n  message   = \"" + msg + "\""
     + "\n  source file = " + sourceFile
     + "\n  line number = " + String::valueOf(line);
 }
 //-------------------------------------------------------------------------
 String Exception::getClassName() const { return "Exception"; }
+//-------------------------------------------------------------------------
+/*!
+ * /brief  stackTrace - tries to get the stack trace of current point.
+ *  If (libALIZE and) MISTRAL bits were compiled with -g or -ggdb option,
+ *  prints srcFile+line and method parameters. Otherwise, just method names.
+ *
+ * ATTENTION:
+ *  works only on GNU/Linux systems, because:
+ *  - it calls gdb
+ *  - it accesses the symlink /proc/self/exe to fetch the name of current executable
+ * EXAMPLES:
+ *  standalone gdb call for testing:
+ *    gdb -ex run --batch --args ../EigenChannel/EigenChannel --config /users/verdet/lid/fa1-30sSeg-CMSSDCCMS/cfg/EigenChannel.cfg --ndxFilename foo --inputWorldFilename foo --channelMatrix foo
+ *  gdb call attaching to running process:
+ *    gdb -ex run --batch ../EigenChannel/EigenChannel 1234
+ *
+ * CREDITS:
+ * Idea to call gdb from within exception/crash handler to get a correct stack trace
+ *  comes from:
+ *   Mark Kretschmann markey, prominent Amarok hacker / C++ guru
+ * 20080904120004
+ *  Florian Verdet _goto. <florian.verdet@univ-avignon.fr>,<hacking@verdet.ch>
+ *
+ * TODO: make gdb call etc. parametrable through a config option (i.e. debugLevel) for:
+ *  - do a 'bt full' to show also local variables
+ *  - launch interactive gdb to be able to analyze manually (without '--batch')
+ */
+String Exception::stackTrace( const String callerName) const
+{
+	//fprintf(stdout, "DBG: Exception::stackTrace() called with caller[%s]!\n", callerName.c_str()) ;
+
+	/*! EOFException is usually catched non-failing and occurs for every file read.
+	 * Thus we don't build a stack trace (otherwise, we loose far too much time. */
+	if( callerName == "EOFException") {
+		return "" ;
+	}
+	if( callerName == "OutOfMemoryException") {
+		// don't allocate a String, since we don't have any memory any more... (implies putting msg twice hardcoded)
+		fprintf(stderr, "OutOfMemoryException: Exception::stackTrace() won't succeed in tracing the stack...");
+		return "OutOfMemoryException: Exception::stackTrace() won't succeed in tracing the stack..." ;
+	}
+
+	/*! FileNotFoundException may be catched non-failing in EnergyDetectorMain.cpp(1*),
+	 * SegTools.cpp(each lblFile, currently unused), LabelFusion.cpp(1*).
+	 * Since there's no so many (useless) cases, we build a stack trace anyway (no special handling) */
+	/*if( callerName == "FileNotFoundException") {
+		//return "" ;
+	}*/
+
+	String data ;
+
+#ifdef WIN32
+	data = " *** Exception::stackTrace() uses gdb and GNU/Linux' /proc fs which are unavailable on Windows - won't trace the stack.\n" ;
+#else  ///< assuming GNU/Linux system - ATTENTION: doesn't work on Mac (no procfs)
+	// fetch required bits (workaround the fact we don't have access to any info (argv[0] i.e.) )
+	char* mistralProg = new char[2048];
+	size_t length = readlink("/proc/self/exe", mistralProg, 2048);
+	mistralProg[length] = '\0';
+	char* myPid = new char[9]; //usually 32k -> 5chars+nul, max possible is 8chars
+	sprintf( myPid, "%d", getpid() ) ;
+
+	// TODO: escape mistralProg to avoid nasty things
+	// with 'bt full', prints also local variables (not very useful if having only complex objects...)
+	//String cmd = "gdb --batch -ex='bt full' " + String(mistralProg) +" "+ String(myPid) ;
+#ifdef THREAD  //note: no threads in ALIZE!
+	String cmd = "gdb --batch -ex='info threads' -ex=bt " + String(mistralProg) +" "+ String(myPid) ; //doesn't hurt if there's no threads split off
+#else
+	String cmd = "gdb --batch -ex=bt " + String(mistralProg) +" "+ String(myPid) ;
+#endif
+	data += callerName + "; stack trace by GDB [" + cmd +"]\n" ;
+
+	// run cmd and read its output
+	size_t MAX_BUFFER = 255 ;
+	FILE *stream;
+	char buffer[MAX_BUFFER];
+	stream = popen( cmd.c_str(), "r");
+	while( fgets(buffer, MAX_BUFFER, stream) != NULL ) {
+	   data += buffer ;
+	}
+	pclose(stream);
+	
+	/* //another way to do it (the above is +- a wrapper to this)
+	pid_t pid;
+	pid = fork();
+	if ( pid < 0 ) {
+		printf( "fork failed" );
+		//exit(1);
+	} else if ( pid ==0 ) {
+		printf ( "I'm the child (%d), my parent is %d\n", getpid(), getppid());
+		printf( "executing [gdb --batch -ex=bt %s %s]\n", mistralProg, myPid) ;
+		int ret = execlp( "gdb", "gdb", "--batch", "-ex=bt", mistralProg, myPid, (char *) NULL) ;
+		printf( "ERROR: exec returned with [%d]\n", ret) ;
+	} else {
+		printf ( "I'm the parent (%d), I too have a parent (%d)\n", getpid(), getppid() );
+	}
+	*/
+#endif
+	//fprintf( stdout, "DBG: trace[%s]", data.c_str());
+	return data;
+}
 //-------------------------------------------------------------------------
 Exception::~Exception() {}
 //-------------------------------------------------------------------------
@@ -85,11 +198,11 @@ Exception::~Exception() {}
 //-------------------------------------------------------------------------
 IndexOutOfBoundsException::IndexOutOfBoundsException(const String& msg,
         const String& sourceFile, int line, long index, long limit)
-:Exception(msg, sourceFile, line), index(index), limit(limit) {}
+:Exception(msg, sourceFile, line, getClassName()), index(index), limit(limit) {}
 //-------------------------------------------------------------------------
 IndexOutOfBoundsException::IndexOutOfBoundsException(
                 const IndexOutOfBoundsException& e)
-:Exception(e.msg, e.sourceFile, e.line),
+:Exception(e.msg, e.sourceFile, e.line, getClassName()),
  index(e.index), limit(e.limit) {}
 //-------------------------------------------------------------------------
 String IndexOutOfBoundsException::toString() const
@@ -111,10 +224,14 @@ IndexOutOfBoundsException::~IndexOutOfBoundsException() {}
 //-------------------------------------------------------------------------
 IOException::IOException(const String& msg, const String& sourceFile,
                      int line, const FileName& f)
-:Exception(msg, sourceFile, line), fileName(f) {}
+:Exception(msg, sourceFile, line, getClassName()), fileName(f) {}
+//-------------------------------------------------------------------------
+IOException::IOException(const String& msg, const String& sourceFile,
+                     int line, const FileName& f, const String callerName)
+:Exception(msg, sourceFile, line, callerName), fileName(f) {}
 //-------------------------------------------------------------------------
 IOException::IOException(const IOException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String IOException::toString() const
 { return Exception::toString() + "\n  fileName =  " + fileName; }
@@ -130,11 +247,11 @@ IOException::~IOException() {}
 //-------------------------------------------------------------------------
 IdAlreadyExistsException::IdAlreadyExistsException(const String& msg,
                     const String& sourceFile, int line)
-:Exception(msg, sourceFile, line) {}
+:Exception(msg, sourceFile, line, getClassName()) {}
 //-------------------------------------------------------------------------
 IdAlreadyExistsException::IdAlreadyExistsException(
                   const IdAlreadyExistsException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String IdAlreadyExistsException::getClassName() const
 { return "IdAlreadyExistsException"; }
@@ -148,10 +265,10 @@ IdAlreadyExistsException::~IdAlreadyExistsException() {}
 //-------------------------------------------------------------------------
 InvalidDataException::InvalidDataException(const String& msg,
         const String& sourceFile, int line, const FileName& f)
-:IOException(msg, sourceFile, line, f) {}
+:IOException(msg, sourceFile, line, f, getClassName()) {}
 //-------------------------------------------------------------------------
 InvalidDataException::InvalidDataException(const InvalidDataException& e)
-:IOException(e.msg, e.sourceFile, e.line, e.fileName) {}
+:IOException(e.msg, e.sourceFile, e.line, e.fileName, getClassName()) {}
 //-------------------------------------------------------------------------
 String InvalidDataException::getClassName() const
 { return "InvalidDataException"; }
@@ -165,10 +282,10 @@ InvalidDataException::~InvalidDataException() {}
 //-------------------------------------------------------------------------
 OutOfMemoryException::OutOfMemoryException(const String& msg,
                     const String& sourceFile, int line)
-:Exception(msg, sourceFile, line) {}
+:Exception(msg, sourceFile, line, getClassName()) {}
 //-------------------------------------------------------------------------
 OutOfMemoryException::OutOfMemoryException(const OutOfMemoryException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String OutOfMemoryException::getClassName() const
 { return "OutOfMemoryException"; }
@@ -182,11 +299,11 @@ OutOfMemoryException::~OutOfMemoryException() {}
 //-------------------------------------------------------------------------
 FileNotFoundException::FileNotFoundException(const String& msg,
         const String& sourceFile, int line, const FileName& f)
-:IOException(msg, sourceFile, line, f) {}
+:IOException(msg, sourceFile, line, f, getClassName()) {}
 //-------------------------------------------------------------------------
 FileNotFoundException::FileNotFoundException(
                   const FileNotFoundException& e)
-:IOException(e.msg, e.sourceFile, e.line, e.fileName) {}
+:IOException(e.msg, e.sourceFile, e.line, e.fileName, getClassName()) {}
 //-------------------------------------------------------------------------
 String FileNotFoundException::getClassName() const
 { return "FileNotFoundException"; }
@@ -200,11 +317,11 @@ FileNotFoundException::~FileNotFoundException() {}
 //-------------------------------------------------------------------------
 ParamNotFoundInConfigException::ParamNotFoundInConfigException(const String& msg,
         const String& sourceFile, int line)
-:Exception(msg, sourceFile, line) {}
+:Exception(msg, sourceFile, line, getClassName()) {}
 //-------------------------------------------------------------------------
 ParamNotFoundInConfigException::ParamNotFoundInConfigException(
                   const ParamNotFoundInConfigException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String ParamNotFoundInConfigException::getClassName() const
 { return "ParamNotFoundInConfigException"; }
@@ -218,11 +335,11 @@ ParamNotFoundInConfigException::~ParamNotFoundInConfigException() {}
 //-------------------------------------------------------------------------
 ConfigCheckException::ConfigCheckException(const String& msg,
         const String& sourceFile, int line)
-:Exception(msg, sourceFile, line) {}
+:Exception(msg, sourceFile, line, getClassName()) {}
 //-------------------------------------------------------------------------
 ConfigCheckException::ConfigCheckException(
                   const ConfigCheckException& e)
-:Exception(e.msg, e.sourceFile, e.line) {}
+:Exception(e.msg, e.sourceFile, e.line, getClassName()) {}
 //-------------------------------------------------------------------------
 String ConfigCheckException::getClassName() const
 { return "ConfigCheckException"; }
@@ -236,10 +353,10 @@ ConfigCheckException::~ConfigCheckException() {}
 //-------------------------------------------------------------------------
 EOFException::EOFException(const String& msg, const String& sourceFile,
                                                int line, const FileName& f)
-:IOException(msg, sourceFile, line, f) {}
+:IOException(msg, sourceFile, line, f, getClassName()) {}
 //-------------------------------------------------------------------------
 EOFException::EOFException(const EOFException& e)
-:IOException(e.msg, e.sourceFile, e.line, e.fileName) {}
+:IOException(e.msg, e.sourceFile, e.line, e.fileName, getClassName()) {}
 //-------------------------------------------------------------------------
 String EOFException::getClassName() const { return "EOFException"; }
 //-------------------------------------------------------------------------

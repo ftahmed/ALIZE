@@ -1,0 +1,30 @@
+##########################################
+# What's new 
+#
+# V1.33 / 8 Fev 08
+# Last edit / 19 Mai 08
+#
+# Editor E.Charton / lia
+# 
+# Please visit
+# http://mistral.univ-avignon.fr
+# http://alize.univ-avignon.fr
+##########################################
+What's new
+
+1.33
+
+	Library
+	- Some modifications to permit compilation under Visual C++ 2005
+
+1.32
+
+	SPRO
+	- Adaptation of Spro inclusion / Removed misc.c, spro.h and sig.c
+	- Modification of FeatureComputer.cpp to include this mods
+	- Modification of FeatureComputer.h
+	- (all functions are renamed / objective is to avoid functions conflict)
+	- Modification of compilation list / SRC/Makefile.am
+	- Modification of alize.makefile
+	
+	

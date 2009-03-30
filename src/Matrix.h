@@ -75,6 +75,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #define TINY 1.0e-20 
 
+// Définition du Rand pour Windows
+#ifdef WIN32
+	#define drand48()((double)rand()/RAND_MAX)
+	#define srand48(n)srand((n));
+#endif
+
 using namespace std;
 
 namespace alize

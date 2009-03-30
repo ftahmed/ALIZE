@@ -6,7 +6,7 @@ AM_PROG_LIBTOOL
 
 prefix=`pwd`
 
-CXXFLAGS="-O3 -ffast-math -Wall -march=pentium4"
+CXXFLAGS="-O3 -ffast-math -Wall"
 
 AC_PROG_CXX
 
