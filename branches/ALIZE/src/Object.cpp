@@ -2,10 +2,13 @@
 Alize is a free, open tool for speaker recognition
 
 Alize is a development project initiated by the ELISA consortium
-  [www.lia.univ-avignon.fr/heberges/ALIZE/ELISA] and funded by the
+  [alize.univ-avignon.fr] and funded by the
   French Research Ministry in the framework of the
   TECHNOLANGUE program [www.technolangue.net]
   [www.technolangue.net]
+	
+Alize is since 2009 part of the Mistral Project 
+  [mistral.univ-avignon.fr]
 
 The Alize project team wants to highlight the limits of voice 
   authentication in a forensic context.
@@ -31,11 +34,14 @@ The Alize project team wants to highlight the limits of voice
   Contact Jean-Francois Bonastre for more information about the licence or
   the use of Alize
 
-Copyright (C) 2003-2005
+Copyright (C) 2003-2005-2007-2008-2009
   Laboratoire d'informatique d'Avignon [www.lia.univ-avignon.fr]
   Frederic Wils [frederic.wils@lia.univ-avignon.fr]
   Jean-Francois Bonastre [jean-francois.bonastre@lia.univ-avignon.fr]
+  Eric Charton [eric.charton@univ-avignon.fr]
       
+Part of this code is from LIUM Laboratory - Sylvain Meigner
+
 This file is part of Alize.
 
 This library is free software; you can redistribute it and/or
@@ -58,8 +64,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #ifdef WIN32
 #pragma warning( disable : 4512 4127 )
-// This is suggested according to message This function or variable may be unsafe
-#define _CRT_SECURE_NO_DEPRECATE
 #endif
 
 #include <cstdlib> // for exit()
@@ -124,7 +128,7 @@ String Object::toString() const
 String Object::getAddress() const
 {
   char str[50];
-  ::sprintf(str, "%p", this);
+  ::sprintf(str, "%p", (void*)this);
   return str;
 }
 //-------------------------------------------------------------------------
@@ -259,7 +263,7 @@ SegServerFileReaderFormat Object::getSegServerFileReaderFormat(const String& nam
 {
   if (name == "XML")
     return SegServerFileReaderFormat_XML;
-  if (name == "LIUM")
+  if (name == ".seg")
     return SegServerFileReaderFormat_LIUM;
   if (name == "RAW")
     return SegServerFileReaderFormat_RAW;
@@ -272,7 +276,7 @@ SegServerFileWriterFormat Object::getSegServerFileWriterFormat(const String& n)
 {
   if (n == "XML")
     return SegServerFileWriterFormat_XML;
-  if (n == "LIUM")
+  if (n == ".seg")
     return SegServerFileWriterFormat_LIUM;
   if (n == "RAW")
     return SegServerFileWriterFormat_RAW;

@@ -112,6 +112,21 @@ namespace alize
     void save(const FileName& f) const;
 
     /// Appends a new line to the list. The line becomes the current line
+    /// @param key the key of the line
+    /// @param value the value of the line
+    /// @return a reference to the XLine object
+    /// @author richard.dufour@lium.univ-lemans.fr
+    ///
+    XLine& addLine(String& key, String& value);
+
+    /// Search the value of an index
+    /// @param index the index of the line
+    /// @return the value
+    /// @author richard.dufour@lium.univ-lemans.fr
+    ///
+    String searchValue(String& index);
+
+    /// Appends a new line to the list. The line becomes the current line
     /// @return a reference to the XLine object
     ///
     XLine& addLine();

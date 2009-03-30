@@ -2,10 +2,13 @@
 Alize is a free, open tool for speaker recognition
 
 Alize is a development project initiated by the ELISA consortium
-  [www.lia.univ-avignon.fr/heberges/ALIZE/ELISA] and funded by the
+  [alize.univ-avignon.fr] and funded by the
   French Research Ministry in the framework of the
   TECHNOLANGUE program [www.technolangue.net]
   [www.technolangue.net]
+	
+Alize is since 2009 part of the Mistral Project 
+  [mistral.univ-avignon.fr]
 
 The Alize project team wants to highlight the limits of voice 
   authentication in a forensic context.
@@ -31,11 +34,14 @@ The Alize project team wants to highlight the limits of voice
   Contact Jean-Francois Bonastre for more information about the licence or
   the use of Alize
 
-Copyright (C) 2003-2005
+Copyright (C) 2003-2005-2007-2008-2009
   Laboratoire d'informatique d'Avignon [www.lia.univ-avignon.fr]
   Frederic Wils [frederic.wils@lia.univ-avignon.fr]
   Jean-Francois Bonastre [jean-francois.bonastre@lia.univ-avignon.fr]
+  Eric Charton [eric.charton@univ-avignon.fr]
       
+Part of this code is from LIUM Laboratory - Sylvain Meigner
+
 This file is part of Alize.
 
 This library is free software; you can redistribute it and/or
@@ -82,10 +88,21 @@ namespace alize
     ///
     virtual void accumulate(const Feature& f) = 0;
 
+    /// Delete an accumulated feature
+    /// @param f the feature to delete
+    /// LIUM Modification
+    ///
+    virtual void deaccumulate(const Feature& f) = 0;
+
     /// Returns the count of accumulated features
     /// @return the count of accumulated features
     ///
     unsigned long getCount() const;
+
+    /// Returns the det, if need make computAll()
+    /// @return the det
+    ///
+    real_t getDet();
 
     /// Returns the parameters mean vector
     /// @return the parameters mean vector
@@ -110,6 +127,10 @@ namespace alize
     DoubleVector  _meanVect;
     bool          _computed;
     bool          _stdComputed;
+
+    real_t              _det;        /*!< determinant */
+    real_t              _cst;        /*!< constante */
+
   private:
     virtual void  computeAll() = 0;
   };

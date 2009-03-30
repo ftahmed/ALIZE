@@ -1,14 +1,14 @@
 ##########################################################
-#      MISTRAL PROJECT - 2007 / 2008                            
+#      MISTRAL PROJECT - 2007 / 2008 /2009                          
 #	  http://mistral.univ-avignon.fr
 #											  
 # Readme File of ALIZE package		
 #							
-# Last edit: 10 February 2009
+# Last edit: 30 March 2009
 # Editors : E.charton/eric.charton@univ-avignon.fr 
-# Last editor : F. Verdet <florian.verdet@univ-avignon.fr>
+# Last editor : E.charton/eric.charton@univ-avignon.fr 
 #						
-# Version : 1.34 - 		
+# Version : 1.35 - 		
 ##########################################################
 
 This package is part of the Mistral Project. Please visit http://mistral.univ-avignon.fr 
@@ -19,6 +19,8 @@ The build depends on: g++ 4, gcc 4, automake (for aclocal), autoconf, autogen, l
 
 In case of trouble, see the "how to compile guide on" : 
 http://mistral.univ-avignon.fr/mistral_dev/pdf/mistral_technote.004.howToCompileMistral.pdf
+
+See also News.txt for information about important modifications done on ALIZE library
 
 FAQ
 ----

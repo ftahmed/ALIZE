@@ -158,6 +158,68 @@ void A::accumulate(const Feature& f)
   _stdComputed = false;
 }
 //-------------------------------------------------------------------------
+void A::add(const FrameAccGF& f)
+{
+  const unsigned long vectSize = f.getVectSize();
+  if (!_vectSizeDefined)
+  {
+    _vectSize = vectSize;
+    _accVect.setSize(_vectSize);
+    _accVect.setAllValues(0.0);
+    _xaccMatrix.setSize(_vectSize);
+    _xaccMatrix.setAllValues(0.0);
+    _vectSizeDefined = true;
+  }
+  else if (vectSize != _vectSize)
+    throw Exception("Incompatible vectSize ("
+          + String::valueOf(vectSize) + "/"
+          + String::valueOf(_vectSize) + ")", __FILE__, __LINE__);
+
+  const DoubleVector& accVect =  f.getAccVect();
+  const DoubleSquareMatrix& xaccMatrix = f.getxAccMatrix();
+  //xaccMatrix.setSize(vectSize);
+  double * matrixValues = xaccMatrix.getArray();
+  double * _matrixValues = _xaccMatrix.getArray();
+
+  unsigned long i,j, ii;
+  for (i=0; i<_vectSize; i++)
+  {
+    _accVect[i] += accVect[i];
+    for (j=i, ii=i*(_vectSize+1); j<_vectSize; j++, ii+=_vectSize)
+      _matrixValues[ii] += matrixValues[ii];
+  }
+  _count += f.getCount();
+  _computed = false;
+  _stdComputed = false;
+}
+//-------------------------------------------------------------------------
+void A::deaccumulate(const Feature& f)
+{
+	const unsigned long vectSize = f.getVectSize();
+
+	if (!_vectSizeDefined) {
+		return;
+	} else if (vectSize != _vectSize) {
+	    throw Exception("Incompatible vectSize ("
+		  + String::valueOf(vectSize) + "/"
+		  + String::valueOf(_vectSize) + ")", __FILE__, __LINE__);
+	}
+
+	const double* dataVect = f.getDataVector();
+	double* xaccMatrix = _xaccMatrix.getArray();
+	unsigned long i,j, ii;
+	for (i=0; i<_vectSize; i++)
+	{
+		const double v = dataVect[i];
+		_accVect[i] -= v;
+		for (j=i, ii=i*(_vectSize+1); j<_vectSize; j++, ii+=_vectSize)
+			xaccMatrix[ii] -= v*dataVect[j];
+	}
+	_count--;
+	_computed = false;
+	_stdComputed = false;
+}
+//-------------------------------------------------------------------------
 void A::computeAll() // private
 {
   if (_count == 0)
@@ -180,6 +242,19 @@ void A::computeAll() // private
     for (j=i, ii = i*(vectSize+1); j<vectSize; j++, ii += vectSize)
       covMatrix[ii] = xaccMatrix[ii]*invCount - mean*meanVect[j];
   }
+
+  // compute det and cov inv --------------------------------
+
+   DoubleSquareMatrix covInvMatrix(vectSize);
+
+  _det = _covMatrix.invert(covInvMatrix);
+
+  // compute cst -------------------------------
+
+  if (_det > EPS_LK)
+    _cst = 1.0 / ( pow(_det, 0.5) * pow( PI2 , _vectSize/2.0 ) );
+  else
+    _cst = 1.0 / ( pow(EPS_LK, 0.5) * pow( PI2 , _vectSize/2.0 ) );
   _computed = true;
 }
 //-------------------------------------------------------------------------

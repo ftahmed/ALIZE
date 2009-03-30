@@ -2,10 +2,13 @@
 Alize is a free, open tool for speaker recognition
 
 Alize is a development project initiated by the ELISA consortium
-  [www.lia.univ-avignon.fr/heberges/ALIZE/ELISA] and funded by the
+  [alize.univ-avignon.fr] and funded by the
   French Research Ministry in the framework of the
   TECHNOLANGUE program [www.technolangue.net]
   [www.technolangue.net]
+	
+Alize is since 2009 part of the Mistral Project 
+  [mistral.univ-avignon.fr]
 
 The Alize project team wants to highlight the limits of voice 
   authentication in a forensic context.
@@ -31,11 +34,14 @@ The Alize project team wants to highlight the limits of voice
   Contact Jean-Francois Bonastre for more information about the licence or
   the use of Alize
 
-Copyright (C) 2003-2005
+Copyright (C) 2003-2005-2007-2008-2009
   Laboratoire d'informatique d'Avignon [www.lia.univ-avignon.fr]
   Frederic Wils [frederic.wils@lia.univ-avignon.fr]
   Jean-Francois Bonastre [jean-francois.bonastre@lia.univ-avignon.fr]
+  Eric Charton [eric.charton@univ-avignon.fr]
       
+Part of this code is from LIUM Laboratory - Sylvain Meigner
+
 This file is part of Alize.
 
 This library is free software; you can redistribute it and/or
@@ -52,6 +58,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
 
 #if !defined(ALIZE_LKVector_h)
 #define ALIZE_LKVector_h
@@ -77,15 +84,20 @@ namespace alize
       lk_t          lk;
     } type;
 
-  
+ 
     /// Create a vector of type type values.
     /// @param size initial size of the array\n
     /// @param capacity maximum number of elements in the array\n
     ///    The capacity will grow automatically when the size will
     ///    overtake the capacity
     ///
-    explicit LKVector(unsigned long capacity = 0, unsigned long size = 0);
+    LKVector(unsigned long capacity = 0, unsigned long size = 0);
     virtual ~LKVector();
+	
+	//LIUM, Sylvain
+	// copy constructor
+    const LKVector& operator=(const LKVector&);
+    LKVector(const LKVector&);
 
     unsigned long size() const;
 
@@ -95,6 +107,13 @@ namespace alize
     /// @param size new size
     ///
     void setSize(unsigned long size);
+
+	//LIUM, Sylvain
+	// copy constructor
+	/// modify the capacity of the array
+    /// @param size new size
+    ///
+    void pack(unsigned long size);
   
     /// Appends a real_t data to the end of the vector
     /// @param v the real_t value to add
@@ -137,10 +156,8 @@ namespace alize
     static int compare(const void*, const void*);
 
 
-    const LKVector& operator=(const LKVector&);
     bool operator==(const LKVector&) const;
     bool operator!=(const LKVector&) const;
-    LKVector(const LKVector&);
 
   };
 

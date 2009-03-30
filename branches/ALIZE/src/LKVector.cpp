@@ -2,10 +2,13 @@
 Alize is a free, open tool for speaker recognition
 
 Alize is a development project initiated by the ELISA consortium
-  [www.lia.univ-avignon.fr/heberges/ALIZE/ELISA] and funded by the
+  [alize.univ-avignon.fr] and funded by the
   French Research Ministry in the framework of the
   TECHNOLANGUE program [www.technolangue.net]
   [www.technolangue.net]
+	
+Alize is since 2009 part of the Mistral Project 
+  [mistral.univ-avignon.fr]
 
 The Alize project team wants to highlight the limits of voice 
   authentication in a forensic context.
@@ -31,11 +34,14 @@ The Alize project team wants to highlight the limits of voice
   Contact Jean-Francois Bonastre for more information about the licence or
   the use of Alize
 
-Copyright (C) 2003-2005
+Copyright (C) 2003-2005-2007-2008-2009
   Laboratoire d'informatique d'Avignon [www.lia.univ-avignon.fr]
   Frederic Wils [frederic.wils@lia.univ-avignon.fr]
   Jean-Francois Bonastre [jean-francois.bonastre@lia.univ-avignon.fr]
+  Eric Charton [eric.charton@univ-avignon.fr]
       
+Part of this code is from LIUM Laboratory - Sylvain Meigner
+
 This file is part of Alize.
 
 This library is free software; you can redistribute it and/or
@@ -52,6 +58,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
 
 #if !defined(ALIZE_LKVector_cpp)
 #define ALIZE_LKVector_cpp
@@ -70,6 +77,39 @@ using namespace alize;
 LKVector::LKVector(unsigned long capacity, unsigned long size)
 :Object(), _capacity(capacity!=0?capacity:1), _size(0),
 _array(createArray()) { setSize(size); }
+
+//-------------------------------------------------------------------------
+//LIUM, sylvain
+LKVector::LKVector(const LKVector& obj){
+  _capacity = obj._capacity;
+  _size = 0;
+  if (_capacity > 0) {
+	  _array = createArray();
+	  //memcpy(_array, obj._array, _capacity*sizeof(_array[0]));
+	  for(unsigned long i = 0; i < obj._size; i++) {
+		  addValue(obj[i]);
+      }
+  }
+  sumNonTopDistribWeights = obj.sumNonTopDistribWeights;
+  sumNonTopDistribLK = obj.sumNonTopDistribLK;
+  topDistribsCount = obj.topDistribsCount;
+}
+
+//LIUM, sylvain
+const LKVector& LKVector::operator=(const LKVector& obj){
+  _capacity = obj._capacity;
+  _size = 0;
+  if (_capacity > 0) {
+	  _array = createArray();
+	  for(unsigned long i = 0; i < obj._size; i++) {
+		  addValue(obj[i]);
+      }
+  }
+  sumNonTopDistribWeights = obj.sumNonTopDistribWeights;
+  sumNonTopDistribLK = obj.sumNonTopDistribLK;
+  topDistribsCount = obj.topDistribsCount;
+  return *this;
+}
 //-------------------------------------------------------------------------
 LKVector::type* LKVector::createArray() const // private
 {
@@ -106,6 +146,21 @@ void LKVector::addValue(type element)
   }
   _array[_size] = element;
   _size++;
+}
+//-------------------------------------------------------------------------
+void LKVector::pack(unsigned long size)
+{
+    unsigned long oldSize = _size;
+    _size = size;
+    _capacity = _size;
+    type* oldArray = _array;
+    _array = createArray(); // can throw OutOfMemoryException
+	unsigned long s = oldSize;
+	if (oldSize > size) {
+		s = size;
+	}
+    memcpy(_array, oldArray, s*sizeof(_array[0]));
+    delete[] oldArray;
 }
 //-------------------------------------------------------------------------
 void LKVector::setSize(unsigned long size)
