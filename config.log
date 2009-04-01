@@ -439,7 +439,7 @@ configure:9196: checking whether stripping libraries is possible
 configure:9201: result: yes
 configure:9325: checking for shl_load
 configure:9381: gcc -o conftest -g -O2   conftest.c  >&5
-/tmp/ccJ3NlNL.o: In function `main':
+/tmp/ccbvRDQO.o: In function `main':
 /home/eric/mistral_plateforme/ALIZE/conftest.c:55: undefined reference to `shl_load'
 collect2: ld returned 1 exit status
 configure:9387: $? = 1
@@ -547,7 +547,7 @@ configure: failed program was:
 configure:9468: result: no
 configure:9473: checking for dlopen
 configure:9529: gcc -o conftest -g -O2   conftest.c  >&5
-/tmp/ccaJpTlx.o: In function `main':
+/tmp/ccNfqEU2.o: In function `main':
 /home/eric/mistral_plateforme/ALIZE/conftest.c:55: undefined reference to `dlopen'
 collect2: ld returned 1 exit status
 configure:9535: $? = 1
@@ -625,7 +625,7 @@ configure:9885: checking whether a statically linked program can dlopen itself
 configure:9959: gcc -o conftest -g -O2  -DHAVE_DLFCN_H  -Wl,--export-dynamic -static conftest.c -ldl  >&5
 configure: In function 'main':
 configure:9955: warning: incompatible implicit declaration of built-in function 'exit'
-/tmp/ccNPhlS5.o: In function `main':
+/tmp/ccfvxo39.o: In function `main':
 /home/eric/mistral_plateforme/ALIZE/configure:9943: warning: Using 'dlopen' in statically linked applications requires at runtime the shared libraries from the glibc version used for linking
 configure:9962: $? = 0
 /usr/local/lib/: cannot read file data: Is a directory

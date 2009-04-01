@@ -57,7 +57,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define ALIZE_DistribGF_cpp
 
 #ifdef WIN32
-#pragma warning( disable : 4291 )
+	#include <cfloat> // for isnan()
+	#define ISNAN(x) _isnan(x)
+#elif_APPLE_
+	#define ISNAN(x) std:isnan(x)
+#else
+	#define ISNAN(x) isnan(x)
 #endif
 
 #include <new>
@@ -70,12 +75,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "Feature.h"
 #include "Exception.h"
 #include "Config.h"
-#ifdef WIN32
-  #include <cfloat> // for _isnan()
-  #define ISNAN(x) _isnan(x)
-#else
-  #define ISNAN(x) isnan(x)
-#endif
+
 
 using namespace alize;
 
