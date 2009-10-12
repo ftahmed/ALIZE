@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_XListFileReader_cpp)
 #define ALIZE_XListFileReader_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4291 4127)
-#endif
-
 #include <new>
 #include "XListFileReader.h"
 #include "Exception.h"

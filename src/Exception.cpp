@@ -60,7 +60,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 /* g++-4.3 needs following inlcusions (seems to work without for g++-4.1 and 4.2) */
 #include <cstdio>    /* for: stderr fprintf sprintf popen fgets pclose */
+
+#ifdef __GNUC__
 #include <unistd.h>  /* for: readlink getpid */
+#endif
+
 /* TODO: If you know a way to do it the clean C++ way, feel free ! */
 
 using namespace alize;

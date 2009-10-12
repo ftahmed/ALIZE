@@ -56,10 +56,26 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_RefVector_h)
 #define ALIZE_RefVector_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
+#ifdef WIN32
+#pragma warning( disable : 4150)			// disable warning 4150 due to virtual SegCluster functions
+#endif
+
+
 #include "Object.h"
 #include <new>
 #include <memory.h>
 #include "Exception.h"
+#include "DoubleSquareMatrix.h"
 
 namespace alize
 {
@@ -72,7 +88,7 @@ namespace alize
   /// @version 1.0
   /// @date 2006
 
-  template <class T> class RefVector : public Object
+  template <class T> class ALIZE_API RefVector : public Object
   {
     friend class TestRefVector;
   
@@ -288,9 +304,11 @@ namespace alize
 
     void deleteAllObjects(unsigned long first = 0)
     {
+		
       for (unsigned long i=first; i<_size; i++)
         delete _array[i];
       _size = first<_size?first:_size;
+		
     }
 
     virtual String getClassName() const { return "RefVector"; }
@@ -308,11 +326,19 @@ namespace alize
       assertMemoryIsAllocated(p, __FILE__, __LINE__);
       return p;
     }
-    bool operator==(const RefVector<T>&) const; /*!Not implemented*/
-    bool operator!=(const RefVector<T>&) const; /*!Not implemented*/
+	//bool operator==(const RefVector<T>&) const; /*!Not implemented*/
+    //bool operator!=(const RefVector<T>&) const; /*!Not implemented*/
   };
 
   typedef RefVector<Object> ObjectRefVector;
+
+#ifdef WIN32
+  template class RefVector<Object>;
+  template class RefVector<DoubleSquareMatrix>;
+  template class RefVector<DoubleVector>;
+  template class RefVector<SegCluster>;
+  template class RefVector<MixtureGDStat>;
+#endif
 
 } // end namespace alize
 

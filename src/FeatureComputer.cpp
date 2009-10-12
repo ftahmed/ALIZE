@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_FeatureComputer_cpp)
 #define ALIZE_FeatureComputer_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4291 4127 4702)
-#endif
-
 #include "FeatureComputer.h"
 #include "Exception.h"
 #include "Config.h"
@@ -211,7 +207,7 @@ double lsig_normalize(lspsig_t *s, int flag)
   if (flag && g != 0.0) {
     v = 1.0 / g;
     for (i = 0; i < s->n; i++)
-      *(p+i) *= v;
+      *(p+i) *= (lsample_t) v;
   }
   
   return(g);
@@ -475,7 +471,7 @@ void R::init(AudioInputStream& a, const Config& c)
 
   _sampleRate = 1000.0/(real_t)_fm_d;
 
-  _pBuf = lsig_buf_alloc(_ibs, _pAudioInputStream->getSampleBytes());
+  _pBuf = lsig_buf_alloc(_ibs, (unsigned short) (_pAudioInputStream->getSampleBytes()));
   if (_pBuf == NULL)
     throw Exception("", __FILE__, __LINE__);
   _nread = 0;
@@ -486,7 +482,7 @@ void R::init(AudioInputStream& a, const Config& c)
       + String::valueOf(_fftnpts) + " points", __FILE__, __LINE__);
   _fft_initialized = true;
 
-  if ((dct_init(_nfilters, _numceps)) != 0)
+  if ((dct_init(_nfilters, (unsigned short) _numceps)) != 0)
   {
     throw Exception("sfbcep error -- cannot initialize "
       + String::valueOf(_nfilters) + " x "
@@ -521,14 +517,14 @@ void R::init(AudioInputStream& a, const Config& c)
     throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
 
   if (_lifter)
-    if ((_r = lset_lifter(_lifter, _numceps)) == NULL)
+    if ((_r = lset_lifter(_lifter, (unsigned short) _numceps)) == NULL)
     throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
 
   if (_usemel) {
-    if ((_idx = set_mel_idx(_nfilters, _f_min / _pAudioInputStream->getFrameRate(), _f_max / _pAudioInputStream->getFrameRate(), _pAudioInputStream->getFrameRate())) == NULL)
+    if ((_idx = set_mel_idx(_nfilters, (float) (_f_min / _pAudioInputStream->getFrameRate()), (float) (_f_max / _pAudioInputStream->getFrameRate()), (float) (_pAudioInputStream->getFrameRate()))) == NULL)
       throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
   }
-  else if ((_idx = set_alpha_idx(_nfilters, _alpha, _f_min / _pAudioInputStream->getFrameRate(), _f_max / _pAudioInputStream->getFrameRate())) == NULL)
+  else if ((_idx = set_alpha_idx(_nfilters, _alpha, (float) (_f_min / _pAudioInputStream->getFrameRate()), (float) (_f_max / _pAudioInputStream->getFrameRate()))) == NULL)
     throw Exception("Error in cepstral analysis", __FILE__, __LINE__);
 }
 //-------------------------------------------------------------------------
@@ -678,7 +674,7 @@ int R::get_next_sig_frame(int ch, int l, int d, float a, lsample_t *s)
     if (nread)
       while (j < l && _bp < _pBuf->n)
       {
-        v = lgetsample(p, _bp, _pAudioInputStream->getSampleBytes());
+        v = lgetsample(p, _bp, (unsigned short) _pAudioInputStream->getSampleBytes());
       	*(s+j) = (lsample_t)(v - a * _prev);
         _prev = v;
         j++;
@@ -703,7 +699,7 @@ unsigned long R::sig_stream_read()
   //nread = fread(f->buf->s, f->nbps, f->buf->m, f->f);
   for (i=0; i<_pBuf->m && _pAudioInputStream->readFrame(_audioFrame); i++)
   {
-    p[i] = _audioFrame.getData();
+    p[i] = (short) _audioFrame.getData();
     nread++;
   }
   _pBuf->n = nread;
@@ -760,18 +756,18 @@ int R::fft_init(unsigned long npts)
       return(SPRO_ALLOC_ERR);
     }
     
-    ang = PI2 / (float)npts;
+    ang = (float) (PI2 / (float)npts);
     angd = PI2 / (double)npts;
     c = cos(angd);
     s = sin(angd);
-    w1c[1] = c;
-    w1c[n4-1] = s;
-    w1c[npts/8] = 0.707106781186547;
+    w1c[1] = (float) c;
+    w1c[n4-1] = (float) s;
+    w1c[npts/8] = (float) 0.707106781186547;
     for (i = 2; i <= n16; i++) {
-      w1c[i] = w1c[i-1] * c - w1c[n4-i+1] * s;
-      w1c[n4-i] = w1c[n4-i+1] * c + w1c[i-1] * s;
-      w1c[n8+i-1] = w1c[n8+i-2] * c - w1c[n8-i+2] * s;
-      w1c[n8-i+1] = w1c[n8-i+2] * c + w1c[n8+i-2] * s;
+      w1c[i] = (float) (w1c[i-1] * c - w1c[n4-i+1] * s);
+      w1c[n4-i] = (float) (w1c[n4-i+1] * c + w1c[i-1] * s);
+      w1c[n8+i-1] = (float) (w1c[n8+i-2] * c - w1c[n8-i+2] * s);
+      w1c[n8-i+1] = (float) (w1c[n8-i+2] * c + w1c[n8+i-2] * s);
     }
     for (i = 1; i <= n12; i++)
       w3c[i] = w1c[3*i];
@@ -961,7 +957,7 @@ void R::_fft(float *x, int m)
   int i, i0, i1, i2, i3, i4, i5, i6, i7, ib, istep, ia0, ia1, ia2, ia3;
   int n, ib0, ib1, ib2, ib3, j, jstep, n2, n4 ,n8, nd4, nb, lnb, llnb, k, sgn;
   float c2, c3, d2, d3, r1, r2, r3, r4, t0, t1, t2;
-  const float rac2s2 = 0.707106781186547;
+  const float rac2s2 = (float) 0.707106781186547;
   
   n = 1 << m;
   nd4 = n / 4;
@@ -1207,8 +1203,8 @@ unsigned short* R::set_alpha_idx(unsigned short n, float a, float fmin, float fm
   *idx = (unsigned short)round(2 * fmin * ((float)(_fftn / 2 - 1)));
   *(idx+n+1) = (unsigned short)round(2 * fmax * (float)(_fftn / 2 - 1));
   
-  omin = (fmin) ? theta(2.0 * XX_PI * fmin, a) : 0.0; /* pulses in transform domain */
-  omax = (fmax < 0.5) ? theta(2.0 * XX_PI * fmax, a) : XX_PI;
+  omin = (fmin) ? theta((float) 2.0 * (float) XX_PI * fmin, a) : (float) 0.0; /* pulses in transform domain */
+  omax = (fmax < (float) 0.5) ? theta((float) 2.0 * (float) XX_PI * fmax, a) : (float) XX_PI;
 
   d = (omax - omin) / (float)(n + 1);
   z = (float)(((_fftn / 2) - 1) / XX_PI);

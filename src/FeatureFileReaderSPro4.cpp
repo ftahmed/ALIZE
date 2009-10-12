@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_FeatureFileReaderSPro4_cpp)
 #define ALIZE_FeatureFileReaderSPro4_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4291 4127 4189 4702)
-#endif
-
 #include <new>
 #include "FeatureFileReaderSPro4.h"
 #include "FileReader.h"

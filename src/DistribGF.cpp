@@ -59,8 +59,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifdef WIN32
 	#include <cfloat> // for isnan()
 	#define ISNAN(x) _isnan(x)
-#elif_APPLE_
-	#define ISNAN(x) std:isnan(x)
 #else
 	#define ISNAN(x) isnan(x)
 #endif
@@ -78,6 +76,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 using namespace alize;
+using namespace std;
 
 //-------------------------------------------------------------------------
 DistribGF::DistribGF(const unsigned long vectSize)

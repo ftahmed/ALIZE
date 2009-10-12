@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_MixtureDict_cpp)
 #define ALIZE_MixtureDict_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4786 )
-#endif
-
 #include "MixtureDict.h"
 #include "Mixture.h"
 #include "Exception.h"

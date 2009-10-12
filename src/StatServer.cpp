@@ -505,7 +505,7 @@ String S::toString() const
 //-------------------------------------------------------------------------
 S::~StatServer()
 {
-  _mixtureStatVect.deleteAllObjects();
+  //_mixtureStatVect.deleteAllObjects();
   _viterbiAccumVect.deleteAllObjects();
 }
 //-------------------------------------------------------------------------

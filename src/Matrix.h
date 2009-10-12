@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_Matrix_h)
 #define ALIZE_Matrix_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include <new>
 #include <math.h>
 
@@ -97,7 +107,7 @@ namespace alize
   /// @version 1.0
   /// @date 2006
 
-  template <class T> class Matrix : public Object
+  template <class T> class ALIZE_API Matrix : public Object
   {
     friend class TestMatrix;
 
@@ -107,7 +117,7 @@ namespace alize
     /// @param c cols of the matrix
     /// @param r rows of the matrix
     ///
-    explicit Matrix(unsigned long rows = 0, unsigned long cols = 0)
+    Matrix(unsigned long rows = 0, unsigned long cols = 0)
       :Object(), _cols(cols), _rows(rows), _array(rows*cols, rows*cols) {}
 
     /// Creates a matrix of type T and loads its content from a file
@@ -675,8 +685,11 @@ namespace alize
   };
 
   typedef Matrix<double> DoubleMatrix;
-  typedef Matrix<float> FloatMatrix;
-
+  
+#ifdef WIN32
+  template class Matrix<double>;
+#endif
+  
 } // end namespace alize
 
 #endif  // ALIZE_Matrix_h

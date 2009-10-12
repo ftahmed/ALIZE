@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_FeatureFlags_cpp)
 #define ALIZE_FeatureFlags_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4189 4702)
-#endif
-
 #include "FeatureFlags.h"
 #include "Exception.h"
 #include "alizeString.h"

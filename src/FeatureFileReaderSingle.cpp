@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_FeatureFileReaderSingle_cpp)
 #define ALIZE_FeatureFileReaderSingle_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4291 )
-#endif
-
 #include <new>
 #include "FeatureFileReaderSingle.h"
 #include "FileReader.h"
@@ -198,7 +194,7 @@ bool R::readFeature(Feature& f, unsigned long step)
       {
         unsigned long ii = _nbStored*vectSize;
         for (unsigned long j=0; j<vectSize; j++)
-          (*_pBuffer)[ii+j] = _f[j];
+          (*_pBuffer)[ii+j] = (float) _f[j];
         _nbStored++;
       }
     }
@@ -305,7 +301,7 @@ bool R::writeFeature(const Feature& f, unsigned long step)
       {
         unsigned long ii = _nbStored*vectSize;
         for (unsigned long j=0; j<vectSize; j++)
-          (*_pBuffer)[ii+j] = _f[j];
+          (*_pBuffer)[ii+j] = (float) _f[j];
         _nbStored++;
       }
     }

@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_ULongVector_h)
 #define ALIZE_ULongVector_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "Object.h"
 
 namespace alize
@@ -66,7 +76,7 @@ namespace alize
   /// @version 1.0
   /// @date 2003
 
-  class ULongVector : public Object
+  class ALIZE_API ULongVector : public Object
   {
     friend class TestULongVector;
 
@@ -136,6 +146,11 @@ namespace alize
     /// @warning Fast but dangerous ! Use preferably operator [].
     ///
     _type* getArray() const;
+
+    /// Sets all the values to a a particular value
+    /// @param U the unsigned long value to set
+    ///
+    void setAllValues(unsigned long u);
 
     virtual String getClassName() const;
     virtual String toString() const;

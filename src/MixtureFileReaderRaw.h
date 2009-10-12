@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_MixtureFileReaderRaw_h)
 #define ALIZE_MixtureFileReaderRaw_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "MixtureFileReaderAbstract.h"
 
 namespace alize
@@ -76,7 +86,7 @@ namespace alize
   /// @warning Do not share files saved with this format. Use it as a
   ///      temporary and personnal backup.
 
-  class MixtureFileReaderRaw : public MixtureFileReaderAbstract
+  class ALIZE_API MixtureFileReaderRaw : public MixtureFileReaderAbstract
   {
 
   public :

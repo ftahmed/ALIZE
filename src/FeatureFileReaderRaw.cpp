@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_FeatureFileReaderRaw_cpp)
 #define ALIZE_FeatureFileReaderRaw_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4291 )
-#endif
-
 #include <new>
 #include "FeatureFileReaderRaw.h"
 #include "FileReader.h"

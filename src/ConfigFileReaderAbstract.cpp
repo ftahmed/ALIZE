@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_ConfigFileReaderAbstract_cpp)
 #define ALIZE_ConfigFileReaderAbstract_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4505 )
-#endif
-
 #include "ConfigFileReaderAbstract.h"
 #include "FileReader.h"
 #include "Exception.h"

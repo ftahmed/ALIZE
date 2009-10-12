@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_ViterbiAccum_h)
 #define ALIZE_ViterbiAccum_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "Object.h"
 #include "RefVector.h"
 #include "ULongVector.h"
@@ -83,7 +93,7 @@ namespace alize
     @date 2004
     */
 
-    class ViterbiAccum : public Object
+    class ALIZE_API ViterbiAccum : public Object
     {
         friend class TestViterbiAccum;
 

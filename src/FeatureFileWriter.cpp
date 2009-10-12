@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_FeatureFileWriterFormat_cpp)
 #define ALIZE_FeatureFileWriterFormat_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4291 4702)
-#endif
-
 #include <new>
 #include "FeatureFileWriter.h"
 #include "Feature.h"

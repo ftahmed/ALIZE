@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_MixtureDict_h)
 #define ALIZE_MixtureDict_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "Object.h"
 #include "RefVector.h"
 #include "alizeString.h"
@@ -74,7 +84,7 @@ namespace alize
   /// @date 2003
   /// @warning Internal class. Do not use.
 
-  class MixtureDict : public Object
+  class ALIZE_API MixtureDict : public Object
   {
     friend class TestMixtureDict;
   
@@ -117,8 +127,8 @@ namespace alize
 
   
   private:
-  
-    std::map<String, unsigned long> _map;
+
+	std::map<String, unsigned long> _map;
     // map = conteneur associatif à clés uniques
     std::map<String, unsigned long>::iterator _it;
     RefVector<Mixture> _vect;

@@ -56,12 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_FileWriter_cpp)
 #define ALIZE_FileWriter_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4127 4702)
-// This is suggested according to message This function or variable may be unsafe
-#define _CRT_SECURE_NO_DEPRECATE
-#endif
-
 #include "FileWriter.h"
 #include "Exception.h"
 

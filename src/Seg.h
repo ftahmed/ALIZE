@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_Seg_h)
 #define ALIZE_Seg_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "SegAbstract.h"
 #include "SegServer.h"
 
@@ -69,7 +79,7 @@ namespace alize
   @date 2004
   */
 
-  class Seg : public SegAbstract
+  class ALIZE_API Seg : public SegAbstract
   {
     friend class TestSeg;
     friend class TestSegCluster;

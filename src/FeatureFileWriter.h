@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_FeatureFileWriter_h)
 #define ALIZE_FeatureFileWriter_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "FileWriter.h"
 
 namespace alize
@@ -75,7 +85,7 @@ namespace alize
   @date 2003
   */
 
-  class FeatureFileWriter : public FileWriter
+  class ALIZE_API FeatureFileWriter : public FileWriter
   {
     friend class TestFeatureFileWriter;
 

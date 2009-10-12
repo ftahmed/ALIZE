@@ -62,6 +62,15 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_XLine_h)
 #define ALIZE_XLine_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
 #include "Object.h"
 #include "RefVector.h"
 #include "Exception.h"
@@ -74,7 +83,7 @@ namespace alize
   @date 2004
   */
 
-  class XLine : public Object
+  class ALIZE_API XLine : public Object
   {
     friend class TestXLine;
 

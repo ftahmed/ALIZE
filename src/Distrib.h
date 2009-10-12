@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_Distrib_h)
 #define ALIZE_Distrib_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "Object.h"
 #include "RealVector.h"
 
@@ -69,7 +79,7 @@ namespace alize
   /// @version 1.0
   /// @date 2003
 
-  class Distrib : public Object
+  class ALIZE_API Distrib : public Object
   {
     friend class TestDistribGD;
     friend class TestDistribGF;

@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_XList_h)
 #define ALIZE_XList_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "Object.h"
 #include "XLine.h"
 #include "RefVector.h"
@@ -73,7 +83,7 @@ namespace alize
   @date 2004
   */
 
-  class XList : public Object
+  class ALIZE_API XList : public Object
   {
     friend class TestXList;
     friend class TestXListFileReader;

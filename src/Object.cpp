@@ -62,10 +62,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_Object_cpp)
 #define ALIZE_Object_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4512 4127 )
-#endif
-
 #include <cstdlib> // for exit()
 #include <cstdio>
 #include "Object.h"
@@ -89,9 +85,9 @@ const real_t Object::PI2 = 3.14159265358979323846*2;
 const K K::k;
 namespace alize
 {
-  const TopDistribsAction DETERMINE_TOP_DISTRIBS;
-  const TopDistribsAction USE_TOP_DISTRIBS;
-  const TopDistribsAction TOP_DISTRIBS_NO_ACTION;
+  ALIZE_API const TopDistribsAction DETERMINE_TOP_DISTRIBS;
+  ALIZE_API const TopDistribsAction USE_TOP_DISTRIBS;
+  ALIZE_API const TopDistribsAction TOP_DISTRIBS_NO_ACTION;
 }
 //-------------------------------------------------------------------------
 Object::Object()

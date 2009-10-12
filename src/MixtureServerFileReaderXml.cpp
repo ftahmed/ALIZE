@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_MixtureServerFileReaderXml_cpp)
 #define ALIZE_MixtureServerFileReaderXml_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4291 4512 4127 )
-#endif
-
 #include <new>
 #include "MixtureServerFileReaderXml.h"
 #include "MixtureServer.h"
