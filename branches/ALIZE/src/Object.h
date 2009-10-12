@@ -57,7 +57,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define ALIZE_Object_h
 
 #ifdef WIN32
-#pragma warning( disable : 4786 )
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
 #endif
 
 #include <cassert>
@@ -176,7 +182,7 @@ namespace alize
     MixtureServerFileWriterFormat_RAW
   };
 
-  class TopDistribsAction
+  class ALIZE_API TopDistribsAction
   {
     friend class Object;
   public:
@@ -201,7 +207,7 @@ namespace alize
   @date 2003
   */
 
-  class Object
+  class ALIZE_API Object
   {
   public :
 
@@ -370,9 +376,9 @@ namespace alize
     K(){}; /*! private constructor */
     static const K k; /*! private object, only for friend classes */
   };
-  extern const TopDistribsAction DETERMINE_TOP_DISTRIBS;
-  extern const TopDistribsAction USE_TOP_DISTRIBS;
-  extern const TopDistribsAction TOP_DISTRIBS_NO_ACTION;
+  extern ALIZE_API const TopDistribsAction DETERMINE_TOP_DISTRIBS;
+  extern ALIZE_API const TopDistribsAction USE_TOP_DISTRIBS;
+  extern ALIZE_API const TopDistribsAction TOP_DISTRIBS_NO_ACTION;
 
 } // end namespace alize
 

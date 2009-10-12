@@ -256,7 +256,7 @@ void W::writeMixtureGD_ETAT(const MixtureGD& m)
   {
     writeUInt4(d);
     writeShort(0); // type = LHM_GAUSS = 0
-    writeShort(m.getVectSize()); // tpar
+    writeShort((short)m.getVectSize()); // tpar
     DistribGD& dis = m.getDistrib(d);
     for (c=0; c<dis.getVectSize(); c++)
       writeDouble(dis.getMean(c));

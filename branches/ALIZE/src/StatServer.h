@@ -62,11 +62,30 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_StatServer_h)
 #define ALIZE_StatServer_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "Object.h"
 #include "alizeString.h"
 #include "LKVector.h"
 #include "ViterbiAccum.h"
 #include "MixtureStat.h"
+
+#ifdef __GNUC__
+#define DEPRECATED(func) func __attribute__ ((deprecated))
+#elif defined(_MSC_VER)
+#define DEPRECATED(func) __declspec(deprecated) func
+#else
+#pragma message("WARNING: You need to implement DEPRECATED for this compiler")
+#define DEPRECATED(func) func
+#endif
 
 namespace alize
 {
@@ -89,7 +108,7 @@ namespace alize
   /// @version 1.0
   /// @date 2003
 
-  class StatServer : public Object
+  class ALIZE_API StatServer : public Object
   {
     friend class TestStatServer;
     friend class TestMixtureGDStat;
@@ -160,7 +179,7 @@ namespace alize
     /// @return the count of accumulated features
     /// @deprecated since 1.06
     ///
-    real_t getAccumulatedOccFeatureCount(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(real_t getAccumulatedOccFeatureCount(const Mixture& m));
 
     /// ***** DEPRECATED *****<br>
     /// Resets internal variables used to store likelihood computation
@@ -171,7 +190,7 @@ namespace alize
     /// @param m the mixture
     /// @deprecated since 1.06
     ///
-    void resetLLK(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(void resetLLK(const Mixture& m));
     
     /// ***** DEPRECATED *****<br>
     /// Returns the last log-likelihood computation stored for a mixture
@@ -180,7 +199,7 @@ namespace alize
     ///     last feature
     /// @deprecated since 1.06
     ///
-    lk_t getLLK(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(lk_t getLLK(const Mixture& m));
     
     /// ***** DEPRECATED *****<br>
     /// Like computeLLK() and, in addition, accumulate the log-likelihood.
@@ -194,8 +213,8 @@ namespace alize
     ///      equals to the dimension of the feature
     /// @deprecated since 1.06
     ///
-    lk_t computeAndAccumulateLLK(const Mixture& m, const Feature& f,
-                     const TopDistribsAction& a = TOP_DISTRIBS_NO_ACTION) __attribute__((deprecated));
+    DEPRECATED(lk_t computeAndAccumulateLLK(const Mixture& m, const Feature& f,
+                     const TopDistribsAction& a = TOP_DISTRIBS_NO_ACTION));
 
     /// ***** DEPRECATED *****<br>
     /// Like computeLLK() and, in addition, accumulate the log-likelihood.
@@ -209,8 +228,8 @@ namespace alize
     ///      equals to the dimension of the feature
     /// @deprecated since 1.06
     ///
-    lk_t computeAndAccumulateLLK(const Mixture& m, const Feature& f,
-             double w, const TopDistribsAction& a = TOP_DISTRIBS_NO_ACTION) __attribute__((deprecated));
+    DEPRECATED(lk_t computeAndAccumulateLLK(const Mixture& m, const Feature& f,
+             double w, const TopDistribsAction& a = TOP_DISTRIBS_NO_ACTION));
 
     /// ***** DEPRECATED *****<br>
     /// Accumulates the log-likelihood.
@@ -220,7 +239,7 @@ namespace alize
     /// @param w the weight (0...1)
     /// @deprecated since 1.06
     ///
-    void accumulateLLK(const Mixture& m, double l, double w = 1.0) __attribute__((deprecated));
+    DEPRECATED(void accumulateLLK(const Mixture& m, double l, double w = 1.0));
     
     /// ***** DEPRECATED *****<br>
     /// Computes and returns the mean of the accumulated log-likelihood.
@@ -232,7 +251,7 @@ namespace alize
     ///      (no likelihood accumulation)
     /// @deprecated since 1.06
     ///
-    lk_t getMeanLLK(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(lk_t getMeanLLK(const Mixture& m));
     
     /// ***** DEPRECATED *****<br>
     /// Like computeAndAccumulateLLK(Mixture& mix, const Feature& f) but
@@ -243,7 +262,7 @@ namespace alize
     ///      stat server (the log-likelihood array is not computed)
     /// @deprecated since 1.06
     ///
-    lk_t computeAndAccumulateLLK(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(lk_t computeAndAccumulateLLK(const Mixture& m));
 
     /// ***** DEPRECATED *****<br>
     /// Resets internal variables used to store occupation of a feature
@@ -254,7 +273,7 @@ namespace alize
     /// @param m the mixture
     /// @deprecated since 1.06
     ///
-    void resetOcc(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(void resetOcc(const Mixture& m));
 
     /// ***** DEPRECATED *****<br>
     /// Computes and accumulates occupation of a feature 
@@ -263,7 +282,7 @@ namespace alize
     /// @deprecated since 1.06
     /// @return sum of occupations BEFORE normalization
     ///
-    real_t computeAndAccumulateOcc(const Mixture& m, const Feature& f) __attribute__((deprecated));
+    DEPRECATED(real_t computeAndAccumulateOcc(const Mixture& m, const Feature& f));
 
     /// ***** DEPRECATED *****<br>
     /// Gets a pointer to the vector of mean occupations.
@@ -272,7 +291,7 @@ namespace alize
     /// @exception Exception if no occ accumulated
     /// @deprecated since 1.06
     ///
-    occ_t* getMeanOccVect(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(occ_t* getMeanOccVect(const Mixture& m));
 
     /// ***** DEPRECATED *****<br>
     /// Gets a pointer to the vector of accumulated occupations.
@@ -281,21 +300,21 @@ namespace alize
     /// @exception Exception if no occ accumulated
     /// @deprecated since 1.06
     ///
-    occ_t* getAccumulatedOccVect(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(occ_t* getAccumulatedOccVect(const Mixture& m));
 
     /// ***** DEPRECATED *****<br>
     /// Computes and return the sum of accumulated occupations
     /// @param m the mixture
     /// @deprecated since 1.06
     ///
-    occ_t getAccumulatedOcc(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(occ_t getAccumulatedOcc(const Mixture& m));
 
     /// ***** DEPRECATED *****<br>
     /// Reset all internal variables used for EM computation
     /// @param m the mixture
     /// @deprecated since 1.06
     ///
-    void resetEM(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(void resetEM(const Mixture& m));
   
     /// ***** DEPRECATED *****<br>
     /// Compute an iteration of EM and accumulate results.
@@ -304,7 +323,7 @@ namespace alize
     /// @exception Exception if something else goes wrong
     /// @return sum of occupations BEFORE normalization
     ///
-    occ_t computeAndAccumulateEM(const Mixture& m, const Feature&) __attribute__((deprecated));
+    DEPRECATED(occ_t computeAndAccumulateEM(const Mixture& m, const Feature&));
 
     /// ***** DEPRECATED *****<br>
     /// Gets the result of EM accumulation.
@@ -313,7 +332,7 @@ namespace alize
     /// @exception Exception if resetEm() have not been called beforehand
     /// @deprecated since 1.06
     ///
-    const Mixture& getEM(const Mixture& m) __attribute__((deprecated));
+    DEPRECATED(const Mixture& getEM(const Mixture& m));
 
     //--------------------------------------------------------------------
 

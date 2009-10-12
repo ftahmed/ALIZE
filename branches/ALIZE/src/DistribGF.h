@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_DistribGF_h)
 #define ALIZE_DistribGF_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "Distrib.h"
 #include "RealVector.h"
 #include "DoubleSquareMatrix.h"
@@ -79,7 +89,7 @@ namespace alize
   /// @date 2003
 
 
-  class DistribGF : public Distrib
+  class ALIZE_API DistribGF : public Distrib
   {
     friend class TestDistribGF;
     friend class TestMixtureGF;

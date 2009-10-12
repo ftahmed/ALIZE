@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_MixtureFileReaderXml_cpp)
 #define ALIZE_MixtureFileReaderXml_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4291 4127 )
-#endif
-
 #include <new>
 #include "MixtureFileReaderXml.h"
 #include "MixtureGD.h"

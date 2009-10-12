@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_RealVector_h)
 #define ALIZE_RealVector_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include <new>
 #include <math.h>
 #include <memory.h>
@@ -71,8 +81,10 @@ namespace alize
   /// @version 1.0
   /// @date 2003
 
-  template <class T> class RealVector : public Object
+  template <class T> class ALIZE_API RealVector : public Object
   {
+	  ;
+
     friend class TestDoubleVector;
     friend class TestFloatVector;
     friend class TestRealVector;
@@ -268,7 +280,7 @@ namespace alize
     const RealVector<T>& operator*=(double s)
     {
       for (unsigned long i=0; i<_size; i++)
-        _array[i] *= s;
+        _array[i] *= (T)s;
        return *this;
     }
     
@@ -305,11 +317,10 @@ namespace alize
     /// @return the index of the largest value
     /// @exception Exception if the vector is empty
     ///
-    unsigned long getIndexOfLargestValue() const
+    unsigned long getIndexOfLargestValue() //const
     {
       if (_size == 0)
-        throw Exception("Empty vector : cannot find the largest value",
-                       __FILE__, __LINE__);
+        throw Exception("Empty vector : cannot find the largest value", __FILE__, __LINE__);
       unsigned long i, maxI = 0;
       T v = _array[maxI];
 
@@ -367,10 +378,17 @@ namespace alize
         return -1;
       return 0;
     }
+
+	
   };
 
   typedef RealVector<double> DoubleVector;
   typedef RealVector<float> FloatVector;
+
+#ifdef WIN32
+  template class RealVector<double>;
+  template class RealVector<float>;
+#endif
 
 } // end namespace alize
 

@@ -218,5 +218,9 @@ String ULongVector::toString() const
 //-------------------------------------------------------------------------
 ULongVector::~ULongVector() { delete[] _array; }
 //-------------------------------------------------------------------------
+void ULongVector::setAllValues(unsigned long u) {
+	for (unsigned long i=0; i< _size; i++)
+        _array[i] = u;
+}
 
 #endif  // ALIZE_ULongVector_cpp

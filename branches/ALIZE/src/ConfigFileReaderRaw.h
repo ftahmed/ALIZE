@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_ConfigFileReaderRaw_h)
 #define ALIZE_ConfigFileReaderRaw_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include "ConfigFileReaderAbstract.h"
 
 namespace alize
@@ -73,7 +83,7 @@ namespace alize
   /// @warning Do not share files saved with this format. Use it as a
   ///      temporary and personnal backup.
 
-  class ConfigFileReaderRaw : public ConfigFileReaderAbstract
+  class ALIZE_API ConfigFileReaderRaw : public ConfigFileReaderAbstract
   {
 
   public :

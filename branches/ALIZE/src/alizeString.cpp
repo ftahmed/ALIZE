@@ -56,12 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_String_cpp)
 #define ALIZE_String_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4512 4127 )
-// This is suggested according to message This function or variable may be unsafe
-#define _CRT_SECURE_NO_DEPRECATE
-#endif
-
 #include <new>
 #include <cstring>
 #include <iostream>
@@ -444,14 +438,14 @@ S::~String()
 // global functions
 
 //-------------------------------------------------------------------------
-S operator+(const char* c, const String& s)
+ALIZE_API S operator+(const char* c, const String& s)
 {
   String x(c);
   x += s;
   return x;
 }
 //-------------------------------------------------------------------------
-std::ostream& operator<<(std::ostream& o, const S& s)
+ALIZE_API std::ostream& operator<<(std::ostream& o, const S& s)
 {
   return o << s.c_str();
 }

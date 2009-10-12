@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_ConfigFileReaderRaw_cpp)
 #define ALIZE_ConfigFileReaderRaw_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4127 )
-#endif
-
 #include "ConfigFileReaderRaw.h"
 #include "Exception.h"
 #include "Config.h"

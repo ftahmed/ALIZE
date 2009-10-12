@@ -57,7 +57,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define ALIZE_FeatureFileReaderSPro4_h
 
 #ifdef WIN32
-#pragma warning( disable : 4250 )
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
 #endif
 
 #include "FeatureFileReaderSingle.h"
@@ -78,7 +84,7 @@ namespace alize
   /// @version 1.0
   /// @date 2003
 
-  class FeatureFileReaderSPro4 : public FeatureFileReaderSingle
+  class ALIZE_API FeatureFileReaderSPro4 : public FeatureFileReaderSingle
   {
     friend class TestFeatureFileReaderSPro4;
 

@@ -56,10 +56,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_Feature_cpp)
 #define ALIZE_Feature_cpp
 
-#ifdef WIN32
-#pragma warning( disable : 4291 )
-#endif
-
 #include <new>
 #include <memory.h>
 #include "Feature.h"

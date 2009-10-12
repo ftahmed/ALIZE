@@ -56,6 +56,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #if !defined(ALIZE_Histo_h)
 #define ALIZE_Histo_h
 
+#ifdef WIN32
+#ifdef ALIZE_EXPORTS
+#define ALIZE_API __declspec(dllexport)
+#else
+#define ALIZE_API __declspec(dllimport)
+#endif
+#else
+#define ALIZE_API
+#endif
+
 #include <iostream>
 #include <fstream>
 #include "Object.h"
@@ -72,7 +82,7 @@ namespace alize
   @date 12/9/2003
   */
 
-  class Histo : public Object
+  class ALIZE_API Histo : public Object
   {
     friend class TestHisto;
 
