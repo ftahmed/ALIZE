@@ -165,7 +165,7 @@ namespace alize
       _cols = M.size();
       _rows =M.size();      
       for (unsigned long i=0; i<_rows; i++)
-              for (unsigned long j=0; j<_cols; i++)
+              for (unsigned long j=0; j<_cols; j++)
                     _array[i*_rows+j]=M(i,j);
     }
       
