@@ -482,7 +482,7 @@ namespace alize
     void saveDB(const FileName&f,const Config& c)
     {
       try {
-            ofstream outputMat(f.c_str(),ios::out);
+            ofstream outputMat(f.c_str(),ios::out|ios::binary);
             if(!outputMat)
                 throw IOException("Cannot open file", __FILE__, __LINE__,f);
             unsigned long rows=this->rows();
@@ -550,7 +550,7 @@ namespace alize
     void loadDB(const FileName&f,const Config& c)
     {
       try {
-            ifstream inputMat(f.c_str(),ios::in);
+            ifstream inputMat(f.c_str(),ios::in|ios::binary);
             if(!inputMat){
               throw IOException("Cannot open file", __FILE__, __LINE__,f);
           }
