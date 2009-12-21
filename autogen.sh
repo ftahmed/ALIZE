@@ -30,6 +30,7 @@ build()
 	&& autoconf \
 	&& ./configure \
 	&& make
+	cp src/libalize.a lib
 }
 
 case "$1" in
