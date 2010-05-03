@@ -67,6 +67,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <cstdio>
 //#include "spro.h"
 
+
 #define OM_EPSILON 0.00001
 #define round(x) ((int)ceil(x) - x < x - (int)floor(x)) ? (int)ceil(x) : (int)floor(x)
 
