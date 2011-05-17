@@ -1,4 +1,3 @@
-
 lib_LIBRARIES=libalize.a
 
 libalize_a_SOURCES=alizeString.cpp\
@@ -20,7 +19,6 @@ DistribRefVector.cpp\
 DoubleSquareMatrix.cpp\
 Exception.cpp\
 Feature.cpp\
-FeatureComputer.cpp\
 FeatureFileList.cpp\
 FeatureFileReader.cpp\
 FeatureFileReaderAbstract.cpp\
@@ -29,7 +27,6 @@ FeatureFileReaderRaw.cpp\
 FeatureFileReaderSPro3.cpp\
 FeatureFileReaderSPro4.cpp\
 FeatureFileReaderSingle.cpp\
-FeatureFileReaderSphere.cpp\
 FeatureFileWriter.cpp\
 FeatureFlags.cpp\
 FeatureInputStream.cpp\
@@ -80,6 +77,8 @@ ViterbiAccum.cpp\
 XLine.cpp\
 XList.cpp\
 XListFileReader.cpp\
-XmlParser.cpp\
-misc.c\
-sig.c
+XmlParser.cpp
+
+AM_CPPFLAGS=-I../include
+
+

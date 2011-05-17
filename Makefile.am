@@ -1,2 +1,5 @@
 SUBDIRS=src
-EXTRA_DIST=autogen.sh
+
+all:
+	mv src/libalize.a lib/libalize_$(OS)_$(ARCH)$(DEBUG).a
+
