@@ -163,9 +163,10 @@ namespace alize
     ///
     explicit Matrix(const DoubleSquareMatrix &M)
     {
-      _cols = M.size();
-      _rows =M.size();      
-      for (unsigned long i=0; i<_rows; i++)
+	_cols = M.size();
+	_rows =M.size();
+	 _array.setSize(_rows*_cols);
+	for (unsigned long i=0; i<_rows; i++)
               for (unsigned long j=0; j<_cols; j++)
                     _array[i*_rows+j]=(T)M(i,j);
     }
