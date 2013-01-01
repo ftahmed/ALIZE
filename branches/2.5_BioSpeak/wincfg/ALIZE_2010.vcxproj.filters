@@ -238,6 +238,9 @@
     <ClCompile Include="..\src\XListFileReader.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\BoolMatrix.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\alize.h">
@@ -484,6 +487,9 @@
       <Filter>header</Filter>
     </ClInclude>
     <ClInclude Include="..\include\MixtureGD.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\BoolMatrix.h">
       <Filter>header</Filter>
     </ClInclude>
   </ItemGroup>

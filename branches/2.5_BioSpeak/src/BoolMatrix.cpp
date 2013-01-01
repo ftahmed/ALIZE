@@ -52,81 +52,9 @@
 	Jean-Francois Bonastre [jean-francois.bonastre@univ-avignon.fr]
 */
 
-#if !defined(ALIZE_alize_h)
-#define ALIZE_alize_h
+#if !defined(ALIZE_BOOLMATRIX_CPP)
+#define ALIZE_BOOLMATRIX_CPP
 
-#include "AutoDestructor.h"
-#include "Exception.h"
-#include "alizeString.h"
-#include "RealVector.h"
-#include "RefVector.h"
-#include "Matrix.h"
-#include "BoolMatrix.h"
-#include "DoubleSquareMatrix.h"
-#include "ULongVector.h"
-#include "Config.h"
-#include "Label.h"
-#include "Histo.h"
-#include "XLine.h"
-#include "XList.h"
-#include "LabelSet.h"
-#include "CmdLine.h"
-#include "Histo.h"
+#include"BoolMatrix.h"
 
-#include "Seg.h"
-#include "SegCluster.h"
-#include "SegServer.h"
-#include "SegServerFileWriter.h"
-#include "SegServerFileReaderRaw.h"
-
-#include "DistribGD.h"
-#include "DistribGF.h"
-#include "MixtureGD.h"
-#include "MixtureGF.h"
-#include "FeatureFlags.h"
-#include "Feature.h"
-
-#include "LabelServer.h"
-#include "MixtureServer.h"
-#include "FeatureServer.h"
-#include "MixtureStat.h"
-#include "MixtureGDStat.h"
-#include "MixtureGFStat.h"
-#include "FrameAcc.h"
-#include "FrameAccGD.h"
-#include "FrameAccGF.h"
-#include "StatServer.h"
-
-#include "FeatureMultipleFileReader.h"
-#include "FeatureFileReaderRaw.h"
-#include "FeatureFileReaderSPro3.h"
-#include "FeatureFileReaderSPro4.h"
-#include "FeatureFileReaderHTK.h"
-#include "FeatureFileReader.h"
-#include "FeatureInputStreamModifier.h"
-#include "MixtureFileReaderAmiral.h"
-#include "MixtureFileReaderRaw.h"
-#include "MixtureFileReaderXml.h"
-#include "MixtureFileReader.h"
-#include "MixtureFileWriter.h"
-#include "MixtureServerFileWriter.h"
-#include "MixtureServerFileReader.h"
-#include "MixtureServerFileReaderXml.h"
-#include "MixtureServerFileReaderRaw.h"
-#include "FeatureFileWriter.h"
-#include "ConfigFileReaderRaw.h"
-#include "ConfigFileReaderXml.h"
-#include "ConfigFileWriter.h"
-#include "SegServerFileWriter.h"
-#include "XListFileReader.h"
-#include "LabelFileReader.h"
-#include "ViterbiAccum.h"
-#include "FeatureFileList.h"
-#include "FileReader.h"
-#include "AudioFrame.h"
-#include "AudioFileReader.h"
-
-#include "ConfigChecker.h"
-
-#endif // !defined(ALIZE_alize_h)
-
+#endif
