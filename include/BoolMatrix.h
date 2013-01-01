@@ -52,8 +52,8 @@
 	Jean-Francois Bonastre [jean-francois.bonastre@univ-avignon.fr]
 */
 
-#if !defined(ALIZE_Matrix_h)
-#define ALIZE_Matrix_h
+#if !defined(ALIZE_BoolMatrix_h)
+#define ALIZE_BoolMatrix_h
 
 #if defined(_WIN32)
 #if defined(ALIZE_EXPORTS)
@@ -64,9 +64,6 @@
 #else
 #define ALIZE_API
 #endif
-
-#pragma warning(disable: 4244) // possible loss of data
-#pragma warning(disable: 4146) // unary minus operator applied to unsigned type
 
 #include <new>
 #include <math.h>
@@ -83,26 +80,26 @@
 #endif
 
 
-#include "RealVector.h"
-#include "DoubleSquareMatrix.h"
+//#include "RealVector.h"
+//#include "DoubleSquareMatrix.h"
 #include "alizeString.h"
 #include "Exception.h"
 #include "Config.h"
-#include "Feature.h"
+//#include "Feature.h"
 
-#define TINY 1.0e-20 
+//#define TINY 1.0e-20 
 
 // Définition du Rand pour Windows
-#if defined(_WIN32)
-	#define drand48()((double)rand()/RAND_MAX)
-	#define srand48(n)srand((n));
-#endif
+//#if defined(_WIN32)
+//	#define drand48()((double)rand()/RAND_MAX)
+//	#define srand48(n)srand((n));
+//#endif
 
 using namespace std;
 
 namespace alize
 {
-  /// This template class implements a matrix of type-T values.<br>
+  /// This class implements a matrix of type boolean values.<br>
   /// Inside the object, the matrix is stored as a single-dimension
   /// array.<br>
   /// WARNING : contrary to class DoubleSquareMatrix, row index is FIRST
@@ -110,79 +107,41 @@ namespace alize
   /// This will probably change for class DoubleSquareMatrix in next release
   /// of Alize
   ///
-  /// @author Frederic Wils  frederic.wils@lia.univ-avignon.fr
-  /// @version 1.0
-  /// @date 2006
+  /// @author Anthony Larcher
+  /// @version 2.0
+  /// @date 2013
 
-  template <class T> class ALIZE_API Matrix : public Object
+  class ALIZE_API BoolMatrix : public Object
+  //template <class T> class ALIZE_API BoolMatrix : public Object
   {
-    friend class TestMatrix;
+  // friend class TestMatrix;
 
   public:
   
-    /// Creates a matrix of type T
+    /// Creates a matrix of type bool
     /// @param c cols of the matrix
     /// @param r rows of the matrix
     ///
-    Matrix(unsigned long rows = 0, unsigned long cols = 0)
+    BoolMatrix(unsigned long rows = 0, unsigned long cols = 0)
       :Object(), _cols(cols), _rows(rows), _array(rows*cols, rows*cols) {}
 
-    /// Creates a matrix of type T and loads its content from a file
+    /// Creates a BoolMatrix and loads its content from a file
     /// @param f file name
     ///
-    explicit Matrix(const FileName& f)
+    explicit BoolMatrix(const FileName& f)
       :Object() { load(f, Config()); }
 
-    /// Creates a matrix of type T and loads its content from a file
+    /// Creates a BoolMatrix and loads its content from a file
     /// @param f file name
     /// @param c configuration
     ///
-    explicit Matrix(const FileName& f, const Config& c)
+    explicit BoolMatrix(const FileName& f, const Config& c)
       :Object() { load(f, c); }
-      
-    /// Creates a matrix of type T with 1 row and v.size() rows<br>
-    /// Copy content of v into this matrix
-    /// @param v the vector
+             
+    /// Copy operator. Copy a BoolMatrix into this BoolMatrix
+    /// @param m the BoolMatrix 
     ///
-    template <class R> explicit Matrix(const RealVector<R>& v)
-    {
-      _cols = v.size();
-      _rows = 1;
-      _array = v;
-    }
-      
-    /// Creates a matrix of type T with 1 row and f.getVectSize() rows<br>
-    /// Copy content of the feature into this matrix
-    /// @param f the feature
-    ///
-    explicit Matrix(const Feature &f)
-    {
-      _array.setSize(f.getVectSize());
-      _cols = f.getVectSize();
-      _rows = 1;      
-      for (unsigned long i=0; i<f.getVectSize(); i++)
-        _array[i]=(T)f[i];
-    }
-    
-    /// Creates a matrix of type T with from a DoubleSquareMatrix (idxs are inverted)
-    /// @param f the feature
-    ///
-    explicit Matrix(const DoubleSquareMatrix &M)
-    {
-      _cols = M.size();
-      _rows =M.size(); 
-	  _array.setSize(_cols*_rows);
-      for (unsigned long i=0; i<_rows; i++){
-              for (unsigned long j=0; j<_cols; j++){
-                    _array[i*_rows+j]=(T)M(i,j);
-			  }
-	  }
-    }
-      
-    /// Copy operator. Copy a matrix into this matrix
-    /// @param m the matrix 
-    ///
-    Matrix<T>& operator=(const Matrix<T>& m)
+    BoolMatrix& operator=(const BoolMatrix& m)
     {
       _array = m._array;
       _cols = m._cols;
@@ -190,27 +149,27 @@ namespace alize
       return *this;
     }
     
-    bool operator==(const Matrix<T>& m) const
+    bool operator==(const BoolMatrix& m) const
     {
       return (_cols == m._cols && _rows == m._rows && _array == m._array);
     }
 
-    bool operator!=(const Matrix<T>& m) const { return !(*this == m); }
+    bool operator!=(const BoolMatrix& m) const { return !(*this == m); }
 
-    Matrix(const Matrix<T>& m)
+    BoolMatrix(const BoolMatrix& m)
     :Object(), _cols(m._cols), _rows(m._rows), _array(m._array) {}
 
-    virtual ~Matrix() {}
+    virtual ~BoolMatrix() {}
 
-    /// Returns the number of columns of this matrix
+    /// Returns the number of columns of this BoolMatrix
     ///
     unsigned long cols() const { return _cols; }
 
-    /// Returns the number of rows of this matrix
+    /// Returns the number of rows of this BoolMatrix
     ///
     unsigned long rows() const { return _rows; }
 
-    /// Sets the new dimensions of the matrix
+    /// Sets the new dimensions of the BoolMatrix
     /// @param cols the number of columns
     /// @param rows the number of rows
     ///
@@ -224,43 +183,43 @@ namespace alize
     /// Sets all the values to a a particular value
     /// @param v the value to set
     ///
-    template <class R> void setAllValues(R v) { _array.setAllValues(v); }
+    void setAllValues(bool v) { _array.setAllValues(v); }
 
-    /// Overloaded operator() to access an element in this matrix.
+    /// Overloaded operator() to access an element in this BoolMatrix.
     /// @param row row of the element to access
     /// @param col column of the element to access
     /// @return a REFERENCE to the element
     /// @exception IndexOutOfBoundsException
     ///
-    T& operator()(unsigned long row, unsigned long col)
+    bool& operator()(unsigned long row, unsigned long col)
     {
       assertIsInBounds(__FILE__, __LINE__, col, _cols);
       assertIsInBounds(__FILE__, __LINE__, row, _rows);
       return _array[row*_cols+col];
     }
 
-    /// Overloaded operator() to access an element in this CONSTANT matrix.
+    /// Overloaded operator() to access an element in this CONSTANT BoolMatrix.
     /// @param row row of the element to access
     /// @param col column of the element to access
     /// @return a COPY of the element
     /// @exception IndexOutOfBoundsException
     ///
-    T operator()(unsigned long row, unsigned long col) const
+    bool operator()(unsigned long row, unsigned long col) const
     {
       assertIsInBounds(__FILE__, __LINE__, col, _cols);
       assertIsInBounds(__FILE__, __LINE__, row, _rows);
       return _array[row*_cols+col];
     }
 
-    /// Transposes this matrix
-    /// @return this matrix
+    /// Transposes this BoolMatrix
+    /// @return this BoolMatrix
     ///
-    Matrix<T>& transpose()
+    BoolMatrix& transpose()
     {
       unsigned long c, r, cc, rr;
-      RealVector<T> tmp = _array;
-      T* t = tmp.getArray();
-      T* p = _array.getArray();
+      RealVector<bool> tmp = _array;
+      bool* t = tmp.getArray();
+      bool* p = _array.getArray();
       for (r=0, rr=0; r<_rows; r++, rr+=_cols)
         for (c=0, cc=0; c<_cols; c++, cc+=_rows)
           p[r+cc] = t[c+rr];
@@ -270,192 +229,25 @@ namespace alize
       return *this;
     }
 
-    /// Transposes this constant matrix into a new matrix
-    /// @return the new matrix
+    /// Transposes this constant BoolMatrix into a new BoolMatrix
+    /// @return the new BoolMatrix
     ///
-    Matrix<T> transpose() const
+    BoolMatrix transpose() const
     {
-      Matrix<T> tmp = *this;
+      BoolMatrix tmp = *this;
       return tmp.transpose();
     }
 
-    /// Inverts this matrix
-    /// @return this matrix
-    ///
-    Matrix<T>& invert()
-    {
-      if(_cols!=_rows)
-        throw Exception("Cannot invert matrix, non square matrix", __FILE__, __LINE__);
-
-      int n = _cols;
-      int i,j;
-      T** a=(T**)malloc((n+1)*sizeof(T*));
-      for (i=0;i<=n;i++)
-        a[i]=(T*)malloc((n+1)*sizeof(T));
-      for(j=1;j<=n;j++)
-        for(i=1;i<=n;i++)
-          a[i][j] = (*this)(i-1,j-1);
-
-      int*indx = (int*)malloc((n+1)*sizeof(int));
-      T** y = (T**)malloc((n+1)*sizeof(T*));     
-      for (i=0;i<=n;i++)
-        y[i]=(T*)malloc((n+1)*sizeof(T));  
-      
-      T* d = (T*)malloc((n+1)*sizeof(T)); 
-      ludcmp(a,n,indx,d);
-      free(d);
-
-      T* col = (T*)malloc((n+1)*sizeof(T));            
-      for(j=1;j<=n;j++)
-      {
-        for(i=1;i<=n;i++)
-          col[i]=(T)0.0;
-        col[j]=(T)1.0;
-        lubksb(a,n,indx,col);
-        for(i=1;i<=n;i++)
-          y[i][j]=col[i];
-      }
-
-      for(j=1;j<=n;j++)
-        for(i=1;i<=n;i++)
-          (*this)(i-1,j-1) = y[i][j];
-
-        free(col);
-      free(indx);
-      for (i=0;i<=n;i++)
-      {
-        free(a[i]);
-        free(y[i]);
-        a[i] = NULL;
-        y[i] = NULL;
-      }
-      free(a);
-      free(y);
-      return *this;
-    }
-
-    /// Inverts this constant matrix into a new matrix
-    /// @return the new matrix
-    ///
-    Matrix<T> invert() const
-    {
-      Matrix<T> tmp = *this;
-      return tmp.invert();
-    }
-
-    /// Multiplies this matrix by an other matrix and returns
-    /// the result in a new matrix (new matrix = this * m);
-    /// @param m the matrix 
-    /// @return a new matrix
-    ///
-    Matrix<T> operator*(const Matrix<T>& m) const
-    {
-      if (_cols != m._rows)
-        throw Exception("Cannot multiply matrices", __FILE__, __LINE__);
-      const unsigned long cols = m._cols;
-      Matrix<T> tmp(_rows, cols);
-      tmp.setAllValues(0.0);
-      T* pTmp = tmp._array.getArray();
-      T* pM = m._array.getArray();
-      T* p = _array.getArray();
-      unsigned long i, j, k, i_cols, itmp_cols, kcols;
-      for (i=0, i_cols=0, itmp_cols=0; i<_rows; i++, i_cols+=_cols, itmp_cols += cols)
-        for (j=0; j<cols; j++)
-          for (k=0, kcols=0; k<_cols; k++, kcols+=cols)
-            pTmp[itmp_cols+j] += p[i_cols+k] * pM[kcols+j];
-      return tmp;
-    }
-
-    /// Multiplies this matrix by an other matrix (this *= m)
-    /// @param m a matrix
-    /// @return this matrix
-    ///
-    Matrix<T>& operator*=(const Matrix<T>& m)
-    {
-      (*this) = (*this)*m;
-      return *this;
-    }
-
-    /// Multiplies this matrix by a scalar value
-    /// @param v the scalar value
-    /// @return this matrix
-    ///
-    Matrix<T>& operator*=(double v)
-    {
-      _array *= v;
-      return *this;
-    }
-
-    /// Multiplies this matrix by a scalar value and returns
-    /// the result in another matrix
-    /// @param v the scalar value
-    /// @return a matrix
-    ///
-    Matrix<T> operator*(double v) const
-    {
-      Matrix<T> tmp = *this;
-      tmp._array *= v;
-      return tmp;
-    }
-
-    /// Adds this matrix and an other matrix and returns
-    /// the result in a new matrix (new matrix = this + m);
-    /// @param m the matrix 
-    /// @return a new matrix
-    ///
-    Matrix<T> operator+(const Matrix<T>& m) const
-    {
-      Matrix<T> tmp(*this);
-      tmp._array += m._array;
-      return tmp;
-    }
-
-    /// Adds this matrix and an other matrix (this += m)
-    /// @param m a matrix
-    /// @return this matrix
-    ///
-    Matrix<T>& operator+=(const Matrix<T>& m)
-    {
-      if (_cols != m._cols || _rows != m._rows)
-        throw Exception("Dimensions of matrices do not match", __FILE__, __LINE__);
-      _array += m._array;
-      return *this;
-    }
-
-    /// Substracts a matrix from  this matrix and returns
-    /// the result in a new matrix (new matrix = this - m);
-    /// @param m the matrix 
-    /// @return a new matrix
-    ///
-    Matrix<T> operator-(const Matrix<T>& m) const
-    {
-      Matrix<T> tmp(*this);
-      tmp._array -= m._array;
-      return tmp;
-    }
-
-    /// Substracts a matrix from this matrix (this -= m)
-    /// @param m a matrix
-    /// @return this matrix
-    ///
-    Matrix<T>& operator-=(const Matrix<T>& m)
-    {
-      if (_cols != m._cols || _rows != m._rows)
-        throw Exception("Dimensions of matrices do not match", __FILE__, __LINE__);
-      _array -= m._array;
-      return *this;
-    }    
-
-    /// Saves a matrix depending on the saveMatrixFormat type
+    /// Saves a BoolMatrix depending on the saveMatrixFormat type
     /// @param f file name
-    /// @return this matrix
+    /// @return this BoolMatrix
     ///
     void save(const FileName& f) { save(f, Config()); }
     
-    /// Saves a matrix depending on the saveMatrixFormat type
+    /// Saves a BoolMatrix depending on the saveMatrixFormat type
     /// @param f file name
     /// @param c configuration
-    /// @return this matrix
+    /// @return this BoolMatrix
     ///
     void save(const FileName& f, const Config& c)
     {
@@ -464,11 +256,11 @@ namespace alize
       else throw Exception("saveMatrixFormat unknown! DT (Dense Text) or DB (Dense Binary)",__FILE__,__LINE__);
     }
     
-    /// Saves this matrix in a file (Dense Text Matrix File Format)<br/>
+    /// Saves this BoolMatrix in a file (Dense Text BoolMatrix File Format)<br/>
     /// http://tedlab.mit.edu/~dr/SVDLIBC/SVD_F_DT.html
     /// @param f file name
     /// @param c configuration
-    /// @return this matrix
+    /// @return this BoolMatrix
     ///
     void saveDT(const FileName& f, const Config& c)
     {
@@ -484,10 +276,10 @@ namespace alize
       l.save(f, c);
     }
     
-    /// Save a matrix in a file (Dense Binary Matrix format)<br/>
+    /// Save a BoolMatrix in a file (Dense Binary BoolMatrix format)<br/>
     /// @param f file name
     /// @param c configuration
-    /// @return this matrix
+    /// @return this BoolMatrix
     ///
     void saveDB(const FileName&f,const Config& c)
     {
@@ -497,7 +289,7 @@ namespace alize
                 throw IOException("Cannot open file", __FILE__, __LINE__,f);
             unsigned long rows=this->rows();
             unsigned long cols=this->cols();        
-            T * array=_array.getArray();
+            bool* array=_array.getArray();
 
 
 			if (sizeof(unsigned int) == 4){
@@ -515,22 +307,22 @@ namespace alize
 
 //            outputMat.write((char*)&rows,sizeof(unsigned int));
 //            outputMat.write((char*)&cols,sizeof(cols));
-            outputMat.write((char*)array,rows*cols*sizeof(T));
+            outputMat.write((char*)array,rows*cols*sizeof(bool));
             outputMat.close();
           }
           catch (Exception& e) {cout << e.toString().c_str() << endl;}
     }
     
-    /// Loads a matrix depending on loadMatrixFormat
+    /// Loads a BoolMatrix depending on loadMatrixFormat
     /// @param f file name
-    /// @return this matrix
+    /// @return this BoolMatrix
     ///
     void load(const FileName& f) { load(f, Config()); }
     
-    /// Loads a matrix depending on loadMatrixFormat
+    /// Loads a BoolMatrix depending on loadMatrixFormat
     /// @param f file name    
     /// @param c configuration
-    /// @return this matrix
+    /// @return this BoolMatrix
     ///
     void load(const FileName& f, const Config& c)
     {
@@ -538,11 +330,11 @@ namespace alize
       else if (c.getParam("loadMatrixFormat")=="DB") loadDB(f,c); 
       else throw Exception("loadMatrixFormat unknown! DT (Dense Text) or DB (Dense Binary)",__FILE__,__LINE__);
     }
-    /// Loads a matrix from a file (Dense Text Matrix File Format)<br/>
+    /// Loads a BoolMatrix from a file (Dense Text BoolMatrix File Format)<br/>
     /// http://tedlab.mit.edu/~dr/SVDLIBC/SVD_F_DT.html
     /// @param f file name
     /// @param c configuration
-    /// @return this matrix
+    /// @return this BoolMatrix
     ///
     void loadDT(const FileName& f, const Config& c)
     {
@@ -560,17 +352,17 @@ namespace alize
         unsigned long i = 0;
         while ((s = p->getElement()))
         {
-          (*this)(j, i) = (T) s->toDouble();
+          (*this)(j, i) = s->toBool();
           i++;
         }
         j++;
       }
     }
     
-    /// Loads a matrix from a file (Dense Binary Matrix format)<br/>
+    /// Loads a BoolMatrix from a file (Dense Binary BoolMatrix format)<br/>
     /// @param f file name
     /// @param c configuration
-    /// @return this matrix
+    /// @return this BoolMatrix
     ///
     void loadDB(const FileName&f,const Config& c)
     {
@@ -604,30 +396,17 @@ namespace alize
 
 //            inputMat.read((char*)&cols,sizeof(cols)); 
             setDimensions(rows,cols);
-            inputMat.read((char*)_array.getArray(),rows*cols*sizeof(T));
+            inputMat.read((char*)_array.getArray(),rows*cols*sizeof(bool));
             inputMat.close();
           }
           catch (Exception& e) {cout << e.toString().c_str() << endl;}
     }
 
-    /// Random init of a matrix <br/>
-    /// @return this matrix
-    ///
-    void randomInit()
-    {
-      try {
-	for ( unsigned long r=0; r<_rows; r++ )     
-		for ( unsigned long c=0; c<_cols; c++ )         
-			(*this)(r,c)= (T) drand48();
-          }
-          catch (Exception& e) {cout << e.toString().c_str() << endl;}
-    }
-    
     /// Use this method to access directly to the internal vector
     /// @return a pointer on the first element
     /// @warning Fast but dangerous ! Use preferably operator()(row, col).
     ///
-    T* getArray() const { return _array.getArray(); }
+    bool* getArray() const { return _array.getArray(); }
 
     virtual String toString() const
     {
@@ -644,24 +423,24 @@ namespace alize
       return s;
     }
 
-    virtual String getClassName() const { return "Matrix"; }
+    virtual String getClassName() const { return "BoolMatrix"; }
 
-    /// Extract a sub matrix from  the current one
+    /// Extract a sub BoolMatrix from  the current one
     /// @return a submatrix
     /// @param line line number of the first selected element
     /// @param col column number of the first selected element
-    /// @param n_rows number of line of the sub matrix
-    /// @param n_cols number of columns of the sub matrix
+    /// @param n_rows number of line of the sub BoolMatrix
+    /// @param n_cols number of columns of the sub BoolMatrix
     ///
-    Matrix<T> crop(unsigned long line, unsigned long col, unsigned long n_rows, unsigned long n_cols)
+    BoolMatrix crop(unsigned long line, unsigned long col, unsigned long n_rows, unsigned long n_cols)
     {
 	if( (line + n_rows > _rows) || (col + n_cols > _cols) ){
-		throw Exception("Cannot crop a such big Matrix",__FILE__,__LINE__);
+		throw Exception("Cannot crop a such big BoolMatrix",__FILE__,__LINE__);
 	}
 	
-	Matrix<T> subM(n_rows, n_cols);
-	T* subm=subM.getArray();
-	T* array = _array.getArray();
+	BoolMatrix subM(n_rows, n_cols);
+	bool* subm=subM.getArray();
+	bool* array = _array.getArray();
 	
 	for(unsigned long i=0; i<n_rows; i++){
 		for(unsigned long j=0; j<n_cols; j++){
@@ -673,10 +452,10 @@ namespace alize
     
     /// Concatenate two matrices in column within the current one
     ///
-    /// @param M1 the first matrix to concatenate
-    /// @param M2 the second matrix to concatenate
+    /// @param M1 the first BoolMatrix to concatenate
+    /// @param M2 the second BoolMatrix to concatenate
     ///
-    void concatCols(const Matrix<T>& M1, const Matrix<T>& M2){
+    void concatCols(const BoolMatrix& M1, const BoolMatrix& M2){
 	
 	//Verify the number of columns of the two matrices
 	if( M1.cols() != M2.cols() ){
@@ -686,8 +465,8 @@ namespace alize
 	unsigned long nrows = M1.rows()+M2.rows();
 	this->setDimensions(nrows,M1.cols());
 	
-	T* m1=M1.getArray();
-	T* m2 = M2.getArray();
+	bool* m1=M1.getArray();
+	bool* m2 = M2.getArray();
 
 	for(unsigned long i=0; i<M1.cols()*M1.rows(); i++){
 		_array[i] =  m1[i];
@@ -699,10 +478,10 @@ namespace alize
 
     /// Concatenate two matrices in line within the current one
     ///
-    /// @param M1 the first matrix to concatenate
-    /// @param M2 the second matrix to concatenate
+    /// @param M1 the first BoolMatrix to concatenate
+    /// @param M2 the second BoolMatrix to concatenate
     ///
-    void concatRows(const Matrix<T>& M1, const Matrix<T>& M2){
+    void concatRows(const BoolMatrix& M1, const BoolMatrix& M2){
 	
 	//Verify the number of columns of the two matrices
 	if( M1.rows() != M2.rows() ){
@@ -712,8 +491,8 @@ namespace alize
 	unsigned long ncols = M1.cols()+M2.cols();
 	this->setDimensions(M1.rows(),ncols);
 	
-	T* m1=M1.getArray();
-	T* m2 = M2.getArray();
+	bool* m1=M1.getArray();
+	bool* m2 = M2.getArray();
 	
 	for(unsigned long r=0; r<M1.rows(); r++){
 		for(unsigned long c1=0; c1<M1.cols(); c1++){
@@ -732,93 +511,11 @@ namespace alize
 
     uint32_t _cols;
     uint32_t _rows;
-    RealVector<T> _array;
-
-	unsigned long fabs(unsigned long x) { return x; };
-    void ludcmp(T **a, int n, int *indx, T *d)
-    {
-      int i,imax,j,k;
-      T big,dum,sum,temp;
-      T *vv;
-      vv=(T*)malloc((n+1)*sizeof(T));
-      for(i=0;i<=n;i++) vv[i]=(T)0.0;
-      *d=(T)1.0; 
-      //fprintf(stderr,"%d ",*d);      
-      for (i=1;i<=n;i++) { 
-          big=(T)0.0; 
-          //fprintf(stderr,"%d ",i);           
-          for (j=1;j<=n;j++)
-              if ((temp=(T)fabs(a[i][j])) > big) big=(T)temp;
-          if (big == 0.0) big=big;//fprintf(stderr,"Ciao");
-          vv[i]=(T)(1.0/big);
-      }
-      //fprintf(stderr,"step 1\n");      
-      for (j=1;j<=n;j++) { 
-          for (i=1;i<j;i++) { 
-              sum=a[i][j];
-              for (k=1;k<i;k++) sum -= a[i][k]*a[k][j];
-              a[i][j]=sum;
-          }
-          //    fprintf(stderr,"step 2\n");   
-          big=(T)0.0;
-          for (i=j;i<=n;i++) {
-              sum=a[i][j];
-              for (k=1;k<j;k++) sum -= a[i][k]*a[k][j];
-              a[i][j]=sum;
-              if ( (dum=vv[i]*(T)fabs(sum)) >= big) {
-                  big=dum;
-                  imax=i;
-              }
-          }
-          if (j != imax) {
-              for (k=1;k<=n;k++) {
-                  dum=a[imax][k];
-                  a[imax][k]=a[j][k];
-                  a[j][k]=dum;
-              }
-              *d = -(*d); 
-              vv[imax]=vv[j];
-          }
-          indx[j]=imax;
-          if (a[j][j] == 0.0) a[j][j]=(T)TINY;
-          if (j != n) {
-              dum=(T)(1.0/(a[j][j]));
-              for (i=j+1;i<=n;i++) a[i][j] *= dum;
-          }
-      } 
-      free(vv);
-    }
-
-    void lubksb(T **a, int n, int *indx, T b[])
-    {
-      int i,ii=0,ip,j;
-      T sum;
-      for (i=1;i<=n;i++) { 
-          ip=indx[i];
-          sum=b[ip];
-          b[ip]=b[i];
-          if (ii)
-          for (j=ii;j<=i-1;j++) sum -= a[i][j]*b[j];
-          else if (sum) ii=i;
-          b[i]=sum; 
-      }
-      for (i=n;i>=1;i--) { 
-          sum=b[i];
-          for (j=i+1;j<=n;j++) sum -= a[i][j]*b[j];
-          b[i]=sum/a[i][i]; 
-      } 
-    }
+    RealVector<bool> _array;
 
   };
 
-  typedef Matrix<double> DoubleMatrix;
-#if defined(_WIN32)
-  template class Matrix<double>;
-  template class Matrix<unsigned long>;
-//  template class Matrix<bool>;
-#endif
-  
 } // end namespace alize
 
-#endif  // ALIZE_Matrix_h
+#endif  // ALIZE_BoolMatrix_h
 
