@@ -503,18 +503,12 @@ namespace alize
 			if (sizeof(unsigned int) == 4){
 				outputMat.write((char*)&rows,sizeof(unsigned int));
 				outputMat.write((char*)&cols,sizeof(unsigned int));
-//				if (::fwrite(&v, sizeof(unsigned int), 1, _pFileStruct) != 1)
-//					throw IOException("Cannot write in file", __FILE__, __LINE__,_fileName);
 			}
 			else if (sizeof(unsigned long) == 4){
 				outputMat.write((char*)&rows,sizeof(unsigned long));
 				outputMat.write((char*)&cols,sizeof(unsigned long));
-//				if (::fwrite(&v, sizeof(v), 1, _pFileStruct) != 1)
-//				throw IOException("Cannot write in file", __FILE__, __LINE__,_fileName);
 			}
 
-//            outputMat.write((char*)&rows,sizeof(unsigned int));
-//            outputMat.write((char*)&cols,sizeof(cols));
             outputMat.write((char*)array,rows*cols*sizeof(T));
             outputMat.close();
           }
@@ -580,29 +574,22 @@ namespace alize
               throw IOException("Cannot open file", __FILE__, __LINE__,f);
           }
 
-//            inputMat.read((char*)&rows,sizeof(rows));
 			unsigned long rows, cols;
 
 			if (sizeof(unsigned long) == 4){
 				inputMat.read((char*)&rows,sizeof(unsigned long));
 				inputMat.read((char*)&cols,sizeof(unsigned long));
-
-//				read(&rows, 4); // can throw IOException, EOFException
-//				read(&cols, 4); // can throw IOException, EOFException
 			}
 			else if (sizeof(unsigned int) == 4){
 
 				unsigned int r,c;
 				inputMat.read((char*)&r,sizeof(unsigned int)); 
 				inputMat.read((char*)&c,sizeof(unsigned int)); 
-//				read(&r, 4); // can throw IOException, EOFException
-//				read(&c, 4); // can throw IOException, EOFException
 				rows = (unsigned long)r;
 				cols = (unsigned long)c;
 
 			}
 
-//            inputMat.read((char*)&cols,sizeof(cols)); 
             setDimensions(rows,cols);
             inputMat.read((char*)_array.getArray(),rows*cols*sizeof(T));
             inputMat.close();
