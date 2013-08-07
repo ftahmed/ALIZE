@@ -802,7 +802,7 @@ namespace alize
 #if defined(_WIN32)
   template class Matrix<double>;
   template class Matrix<unsigned long>;
-//  template class Matrix<bool>;
+  template class Matrix<float>;
 #endif
   
 } // end namespace alize
